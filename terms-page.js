@@ -80,15 +80,6 @@
   $("tabs").appendChild(tab("all", "Everything"));
   $("find").addEventListener("input", draw);
 
-  var saved = null;
-  try { saved = root.localStorage.getItem("watchmap.theme"); } catch (e) { saved = null; }
-  function setTheme(t) { doc.documentElement.setAttribute("data-theme", t); $("theme").textContent = t === "dark" ? "Light" : "Dark"; }
-  setTheme(saved === "light" ? "light" : "dark");
-  $("theme").addEventListener("click", function () {
-    var next = doc.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
-    setTheme(next); try { root.localStorage.setItem("watchmap.theme", next); } catch (e) { /* not stored */ }
-  });
-
   draw();
   fromHash();
   root.addEventListener("hashchange", fromHash);

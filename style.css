@@ -16,6 +16,14 @@
   --ray: rgba(240, 170, 20, 0.26); --tone: rgba(27, 24, 32, 0.15); --red-btn: #c8262b;
   --h1-drop: #ffcf33; --em-drop: #1b1820; --word-drop: #ffcf33; --drop-s: 35%; --drop-l: 13%;
 }
+/* the green theme: the same page in the greens of a glowing timeline */
+:root[data-theme="green"] {
+  --bg: #020d08; --bg2: #051a10; --panel: #082214; --ink: #eaf6e4; --muted: #94b89d; --line: #17402a;
+  --red: #2fd27a; --red-deep: #0d5a31; --gold: #e3d26f; --shadow: rgba(0, 0, 0, 0.6); --dot: rgba(64, 220, 130, 0.07);
+  --outline: #cfe9c8; --drop: #0d5a31; --under: #2fd27a; --pop: #e3d26f; --pop-ink: #07160d; --pop-soft: #3c4a2c; --pop-line: #020d08;
+  --ray: rgba(47, 210, 122, 0.16); --tone: rgba(227, 210, 111, 0.16); --red-btn: #12854a;
+  --h1-drop: #0d5a31; --em-drop: #073a20; --word-drop: #0b4a29; --drop-s: 60%; --drop-l: 30%;
+}
 :root { --display: "Anton", Impact, "Arial Narrow Bold", sans-serif; --body: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif; --bar-h: 60px;
   --burst: polygon(50% 0%, 57.4% 12.9%, 68.8% 4.7%, 71.3% 18.1%, 84.3% 15.7%, 80.9% 29.3%, 95.7% 31.1%, 88.3% 42.4%, 100% 50%, 87.1% 57.4%, 95.3% 68.8%, 81.9% 71.3%, 84.3% 84.3%, 70.7% 80.9%, 68.9% 95.7%, 57.6% 88.3%, 50% 100%, 42.6% 87.1%, 31.2% 95.3%, 28.7% 81.9%, 15.7% 84.3%, 19.1% 70.7%, 4.3% 68.9%, 11.7% 57.6%, 0% 50%, 12.9% 42.6%, 4.7% 31.2%, 18.1% 28.7%, 15.7% 15.7%, 29.3% 19.1%, 31.1% 4.3%, 42.4% 11.7%);
   --burst-s: polygon(50% 0%, 60.2% 18.6%, 79.4% 9.5%, 76.7% 30.6%, 97.6% 34.5%, 83% 50%, 97.6% 65.5%, 76.7% 69.4%, 79.4% 90.5%, 60.2% 81.4%, 50% 100%, 39.8% 81.4%, 20.6% 90.5%, 23.3% 69.4%, 2.4% 65.5%, 17% 50%, 2.4% 34.5%, 23.3% 30.6%, 20.6% 9.5%, 39.8% 18.6%); }
@@ -300,7 +308,76 @@ a.tool { text-decoration: none; }
 .term-see b { font-weight: 700; border: 2px solid var(--outline); border-radius: 4px; padding: 1px 9px; background: var(--bg2); }
 @media (max-width: 560px) { .terms-find { gap: 10px; } .terms-find span { padding: 3px 7px; letter-spacing: 0.08em; } .terms-find input { padding: 7px 8px; font-size: 0.95rem; } .term { padding: 16px; } }
 
-.hero-more { margin: 18px 0 0; font-weight: 800; }
+.hero-more { margin: 18px 0 0; font-weight: 800; display: flex; flex-wrap: wrap; gap: 6px 22px; }
+.hero-more a { white-space: nowrap; }
+
+/* The map on its own page. map.html is the guide page with data-page="map" on <body>: everything but the
+   map is hidden and the map takes the height of the window. On the guide itself the map stays hidden. */
+[data-page="guide"] #map { display: none; }
+.door { display: inline-block; text-decoration: none; font-size: 1.1rem; }
+#strands, .green-quote { display: none; }
+.map-unofficial { margin: 6px 0 0; font-size: 0.78rem; color: var(--muted); }
+[data-page="map"] main > :not(#map), [data-page="map"] .foot { display: none; }
+[data-page="map"] #map { display: flex; flex-direction: column; max-width: none; margin: 0; padding: 14px 18px 10px; height: calc(100vh - var(--bar-h)); height: calc(100dvh - var(--bar-h)); min-height: 500px; }
+[data-page="map"] #map .head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 18px; margin-bottom: 10px; }
+[data-page="map"] #map .head .num { display: none; }
+[data-page="map"] #map .head h2 { font-size: clamp(1.5rem, 3.2vw, 2.1rem); }
+[data-page="map"] #map .head .sub { margin: 0; max-width: none; font-size: 0.92rem; }
+[data-page="map"] #map .controls { margin-bottom: 10px; }
+[data-page="map"] .map-scroll { flex: 1 1 auto; min-height: 400px; }
+@media (max-width: 700px) {
+  /* a phone: give the height to the map, not to the words above it */
+  [data-page="map"] #map { padding: 10px 12px 8px; }
+  [data-page="map"] #map .head .sub, [data-page="map"] #jump { display: none; }
+  [data-page="map"] #map .controls { gap: 8px 10px; }
+}
+[data-page="map"] #graph { height: 100%; width: auto; }
+[data-page="map"] .reveal { opacity: 1; transform: none; }
+[data-page="map"] .legend { margin-bottom: 0; }
+[data-page="map"] .caption { margin-top: 10px; padding: 8px 12px; }
+
+/* Green on the map page: nothing but the timeline, on moving green strands (drawn by app.js). A copy of the
+   site that sets a picture in config.js (greenImage) shows it behind the strands. */
+:root[data-theme="green"] body[data-page="map"] { overflow: hidden; background-color: #020d08;
+  background-image: linear-gradient(rgba(2, 13, 8, 0.45), rgba(2, 13, 8, 0.7)), var(--green-still, none); background-size: cover; background-position: center; background-attachment: fixed; }
+:root[data-theme="green"] body[data-page="map"] .bar { position: fixed; left: 0; right: 0; background: none; border: 0; box-shadow: none; pointer-events: none; }
+:root[data-theme="green"] body[data-page="map"] .bar > :not(#theme) { display: none; }
+:root[data-theme="green"] body[data-page="map"] #theme { margin-left: auto; pointer-events: auto; }
+:root[data-theme="green"] body[data-page="map"] #map { height: 100vh; height: 100dvh; padding: 0; }
+:root[data-theme="green"] body[data-page="map"] #map > :not(.map-scroll):not(#strands):not(.green-quote) { display: none; }
+:root[data-theme="green"] body[data-page="map"] #strands { display: block; position: fixed; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; }
+:root[data-theme="green"] body[data-page="map"] .map-scroll { position: relative; z-index: 1; border: 0; border-radius: 0; box-shadow: none; background: none; scrollbar-color: #1f6b3f transparent; }
+:root[data-theme="green"] body[data-page="map"] .green-quote { display: block; position: fixed; left: 50%; bottom: 20px; z-index: 2; transform: translateX(-50%); margin: 0; width: min(92vw, 780px); text-align: center; pointer-events: none;
+  font-size: clamp(0.95rem, 2vw, 1.3rem); font-style: italic; color: #e2fbe0; text-shadow: 0 0 14px rgba(47, 210, 122, 0.85), 0 2px 6px #000; }
+.green-quote small { display: block; margin-top: 5px; font-style: normal; font-size: 0.68em; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: #8fd9a8; }
+:root[data-theme="green"] body[data-page="map"] .band { fill: transparent; }
+:root[data-theme="green"] body[data-page="map"] .band.alt { fill: rgba(47, 210, 122, 0.05); }
+:root[data-theme="green"] body[data-page="map"] #graph > g:first-of-type { filter: drop-shadow(0 0 4px rgba(64, 230, 140, 0.75)); }
+:root[data-theme="green"] body[data-page="map"] .edge { stroke: #7df7b0; stroke-width: 1.3; opacity: 0.38; }
+:root[data-theme="green"] body[data-page="map"] .edge.on { stroke: #f1ffd0; stroke-width: 3; opacity: 1; }
+
+/* Quiz page: one card per question */
+.quiz-page { padding-top: 44px; max-width: 820px; }
+.quiz-score { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin: 0 0 26px; font-weight: 800; }
+.quiz-score b { font-family: var(--display); font-weight: 400; font-size: 1.7rem; letter-spacing: 0.03em; }
+.quiz-list { display: grid; gap: 26px; padding-right: 6px; }
+.q { border: 3px solid var(--outline); border-radius: 6px; padding: 20px; background: var(--panel); box-shadow: 6px 6px 0 var(--drop); }
+.q.right { box-shadow: 6px 6px 0 var(--pop); }
+.q-n { margin: 0 0 6px; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.q h2 { font-size: clamp(1.35rem, 4vw, 1.9rem); margin: 0 0 14px; text-shadow: none; }
+.q-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.q-options button { background: var(--bg2); border: 2px solid var(--outline); border-radius: 6px; padding: 10px 12px; font-weight: 700; text-align: left; transition: transform 0.12s, box-shadow 0.12s; }
+.q-options button:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--drop); }
+.q-options button.picked-right { background: var(--pop); color: var(--pop-ink); }
+.q-options button.picked-wrong { border-style: dashed; opacity: 0.6; text-decoration: line-through; }
+.q-type { display: flex; flex-wrap: wrap; gap: 10px; }
+.q-type input { flex: 1 1 220px; min-width: 0; font: inherit; color: var(--ink); background: var(--bg2); border: 3px solid var(--outline); border-radius: 6px; padding: 10px 12px; }
+.q-type input:focus { box-shadow: 4px 4px 0 var(--red); outline: none; }
+.q-say { margin: 12px 0 0; min-height: 1.6em; font-weight: 700; }
+.q-say.good { color: var(--gold); }
+.q-hint { margin: 10px 0 0; color: var(--muted); font-size: 0.95rem; }
+.q-full { margin: 12px 0 0; font-family: var(--display); font-size: clamp(1.3rem, 4vw, 2rem); letter-spacing: 0.02em; text-transform: uppercase; line-height: 1.15; }
+.ghost-link { background: none; border: 0; padding: 0; color: var(--gold); text-decoration: underline; font-weight: 700; }
 
 /* Wallpapers page: a card per photo, wide ones and tall ones in their own grids */
 .walls-page { padding-top: 44px; }

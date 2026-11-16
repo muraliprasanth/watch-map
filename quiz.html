@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quiz · Watch Map</title>
+<meta name="description" content="An unofficial fan guide. Seven quick questions about the films and series: three to pick, four to type.">
+<meta name="theme-color" content="#0b0a0e">
+<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preload" href="fonts/anton.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+<script src="theme.js"></script>
+</head>
+<body>
+<header class="bar">
+  <a class="word" href="index.html" aria-label="Watch Map, back to the guide"><img class="logo" src="icon-180.png" width="34" height="34" alt=""><span class="word-a">WATCH</span><span class="word-b">MAP</span></a>
+  <nav aria-label="Pages">
+    <a href="index.html">The guide</a>
+    <a href="map.html">The map</a>
+    <a href="index.html#people">Characters</a>
+    <a href="terms.html">Terms</a>
+    <a href="wallpapers.html">Wallpapers</a>
+    <a href="quiz.html" aria-current="page">Quiz</a>
+  </nav>
+  <a class="tool back-link" href="index.html">Guide</a>
+  <button type="button" id="theme" class="tool" title="Switch theme">Light</button>
+</header>
+
+<main id="top" class="block quiz-page">
+  <div class="head">
+    <p class="num">QUIZ</p>
+    <h1 class="terms-title">How well do you know it?</h1>
+    <p class="sub">Seven questions: pick an answer for the first three, type the last four. <strong>It gives away plot points.</strong> Your answers are kept in this browser only.</p>
+  </div>
+  <p class="quiz-score" aria-live="polite"><span><b id="score">0</b> of <span id="total">7</span> right</span> <button type="button" class="tool" id="again">Start again</button></p>
+  <div class="quiz-list" id="quiz"></div>
+  <noscript><p class="meta">This page needs JavaScript to run the quiz.</p></noscript>
+</main>
+
+<footer class="foot">
+  <p><strong>Unofficial.</strong> This is a fan-made guide. It is not affiliated with, endorsed by or sponsored by Marvel or The Walt Disney Company. Names belong to their owners and are used here only to describe the works.</p>
+  <p>The questions and the answers are part of this page, and what you answer never leaves your browser. <a href="index.html">Back to the guide</a> · <a href="map.html">The map</a> · <a href="terms.html">Terms</a> · <a href="wallpapers.html">Wallpapers</a>.</p>
+</footer>
+
+<script src="quiz-page.js"></script>
+</body>
+</html>

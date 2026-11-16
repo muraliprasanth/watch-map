@@ -176,7 +176,7 @@
     info.appendChild(el("p", { "class": "meta" }, bits.join(" · ")));
     info.appendChild(el("p", { "class": "sum", id: "sum" }));
     var onMap = el("button", { type: "button", "class": "ghost" }, "Show on the map");
-    onMap.addEventListener("click", function () { go($("map")); centre(id); });
+    onMap.addEventListener("click", function () { if (ON_MAP) { go($("map")); centre(id); } else root.open("map.html#t=" + id, "watchmap-map"); });
     info.appendChild(onMap);
     top.appendChild(info); box.appendChild(top);
 
@@ -210,6 +210,10 @@
   /* ----- the map ----- */
   var STEP = 124, PAD = 90, LANE = { film: 132, series: 322, special: 470 }, H = 540;
   var nodes = {}, edges = [], phaseX = {};
+  /* The map page (map.html) is this same page with data-page="map": only the map is shown, and it is
+     stretched to the height of the window, so one unit of the drawing is no longer one pixel. */
+  var ON_MAP = doc.body.getAttribute("data-page") === "map";
+  function scale() { var h = $("graph").getBoundingClientRect().height; return h > 0 ? h / H : 1; }
 
   function drawMap() {
     var g = $("graph"); g.textContent = ""; nodes = {}; edges = []; phaseX = {};
@@ -298,14 +302,14 @@
   }
   function centre(id) {
     var sc = $("map-scroll");
-    sc.scrollTo({ left: Math.max(0, nodes[id].x - sc.clientWidth / 2), behavior: calm ? "auto" : "smooth" });
+    sc.scrollTo({ left: Math.max(0, nodes[id].x * scale() - sc.clientWidth / 2), behavior: calm ? "auto" : "smooth" });
   }
   function caption(id) {
     var c = $("caption"), t = MAP[id]; c.textContent = "";
     c.appendChild(el("strong", null, t.title));
     c.appendChild(el("span", null, describe(chain(id, MAP), MAP) + " before it"));
     var b = el("button", { type: "button", "class": "ghost" }, "Open the full list");
-    b.addEventListener("click", function () { go($("before")); });
+    b.addEventListener("click", function () { if (ON_MAP) root.open("index.html#t=" + id, "watchmap-guide"); else go($("before")); });
     c.appendChild(b);
     var x = el("button", { type: "button", "class": "ghost" }, "Clear");
     x.addEventListener("click", function () { state.selected = null; state.group = null; c.textContent = ""; paint(); });
@@ -324,6 +328,51 @@
     ["pointerup", "pointerleave", "pointercancel"].forEach(function (n) {
       sc.addEventListener(n, function () { down = false; sc.classList.remove("drag"); root.setTimeout(function () { dragged = false; }, 0); });
     });
+  }
+
+  /* ----- the green theme on the map page: glowing strands behind the timeline (this guide's own drawing) ----- */
+  var strand = null;
+  function strands(on) {
+    var c = $("strands"), ctx = c && c.getContext && c.getContext("2d");
+    if (!ctx) return;
+    if (!strand) {
+      strand = { lines: [], w: 0, h: 0, raf: 0, running: false, t: 0 };
+      strand.size = function () {
+        var d = Math.min(2, root.devicePixelRatio || 1);
+        strand.w = root.innerWidth; strand.h = root.innerHeight;
+        c.width = strand.w * d; c.height = strand.h * d; ctx.setTransform(d, 0, 0, d, 0, 0);
+        var n = Math.round(Math.min(64, Math.max(28, strand.w / 22)));
+        strand.lines = [];
+        for (var i = 0; i < n; i++) {
+          strand.lines.push({ off: (i + 0.5) / n - 0.5, amp: 18 + Math.random() * 46, len: 320 + Math.random() * 520, ph: Math.random() * 6.283,
+            sp: 0.15 + Math.random() * 0.35, wd: 0.7 + Math.random() * 2.1, hue: 128 + Math.random() * 30, lt: 38 + Math.random() * 34, al: 0.16 + Math.random() * 0.4 });
+        }
+      };
+      strand.frame = function () {
+        var s = strand, cy = s.h * 0.52, soft = doc.documentElement.style.getPropertyValue("--green-still") ? 0.45 : 1;
+        ctx.clearRect(0, 0, s.w, s.h);
+        ctx.globalCompositeOperation = "lighter";
+        for (var i = 0; i < s.lines.length; i++) {
+          var l = s.lines[i];
+          ctx.beginPath();
+          for (var x = -20; x <= s.w + 20; x += 18) {
+            /* the bundle is tight in the middle of the window and fans out to both sides, like branches */
+            var fan = 0.18 + 0.82 * Math.pow(Math.abs(x / s.w - 0.5) * 2, 1.35);
+            var y = cy + l.off * s.h * 1.25 * fan + Math.sin(x / l.len * 6.283 + l.ph + s.t * l.sp) * l.amp * (0.35 + fan);
+            if (x === -20) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+          }
+          ctx.strokeStyle = "hsla(" + l.hue.toFixed(0) + ",85%," + l.lt.toFixed(0) + "%," + (l.al * soft).toFixed(3) + ")";
+          ctx.lineWidth = l.wd; ctx.shadowColor = "hsla(" + l.hue.toFixed(0) + ",95%,55%,0.9)"; ctx.shadowBlur = 10;
+          ctx.stroke();
+        }
+        ctx.globalCompositeOperation = "source-over"; ctx.shadowBlur = 0;
+        s.t += 0.016;
+        if (s.running && !calm) s.raf = root.requestAnimationFrame(s.frame);
+      };
+      root.addEventListener("resize", function () { if (strand.running) { strand.size(); if (calm) strand.frame(); } });
+    }
+    if (on && !strand.running) { strand.running = true; strand.size(); strand.frame(); }
+    else if (!on && strand.running) { strand.running = false; root.cancelAnimationFrame(strand.raf); ctx.clearRect(0, 0, strand.w, strand.h); }
   }
 
   /* ----- groups: watch paths and characters ----- */
@@ -428,13 +477,18 @@
       $("phase-rails").appendChild(row);
       (function (n) {
         var j = el("button", { type: "button", "class": "chip" }, "Phase " + PHASES[n - 1]);
-        j.addEventListener("click", function () { $("map-scroll").scrollTo({ left: Math.max(0, (phaseX[n] || 0) - 10), behavior: calm ? "auto" : "smooth" }); });
+        j.addEventListener("click", function () { $("map-scroll").scrollTo({ left: Math.max(0, (phaseX[n] || 0) * scale() - 10), behavior: calm ? "auto" : "smooth" }); });
         $("jump").appendChild(j);
       })(p);
     }
 
     Array.prototype.forEach.call(doc.querySelectorAll(".seg button"), function (b) {
-      b.addEventListener("click", function () { state.order = b.getAttribute("data-order"); press(".seg button", b); drawMap(); if (state.person) showPerson(state.person); if (state.selected) centre(state.selected); });
+      b.addEventListener("click", function () {
+        state.order = b.getAttribute("data-order");
+        /* the switch appears twice (by the map and by the characters): both show the same choice */
+        Array.prototype.forEach.call(doc.querySelectorAll(".seg button"), function (x) { x.setAttribute("aria-pressed", x.getAttribute("data-order") === state.order ? "true" : "false"); });
+        drawMap(); if (state.person) showPerson(state.person); if (state.selected) centre(state.selected);
+      });
     });
     Array.prototype.forEach.call(doc.querySelectorAll(".chip[data-kind]"), function (b) {
       b.addEventListener("click", function () { var k = b.getAttribute("data-kind"); state.kinds[k] = !state.kinds[k]; b.setAttribute("aria-pressed", state.kinds[k] ? "true" : "false"); paint(); });
@@ -449,23 +503,27 @@
     });
     G.characters.forEach(function (ch) { $("people-chips").appendChild(personChip(ch, false)); });
 
-    var saved = null;
-    try { saved = root.localStorage.getItem("watchmap.theme"); } catch (e) { saved = null; }
-    function setTheme(t) { doc.documentElement.setAttribute("data-theme", t); $("theme").textContent = t === "dark" ? "Light" : "Dark"; }
-    setTheme(saved === "light" ? "light" : "dark");
-    $("theme").addEventListener("click", function () {
-      var next = doc.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
-      setTheme(next); try { root.localStorage.setItem("watchmap.theme", next); } catch (e) { /* not stored */ }
-    });
-
     drawMap(); progress(); sky();
+    if (ON_MAP) {
+      if (root.WATCHMAP && root.WATCHMAP.greenImage) doc.documentElement.style.setProperty("--green-still", 'url("' + root.WATCHMAP.greenImage + '")');
+      strands(doc.documentElement.getAttribute("data-theme") === "green");
+      doc.addEventListener("themechange", function (e) { strands(e.detail === "green"); });
+    }
     if ("IntersectionObserver" in root && !calm) {
       var io = new root.IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }); }, { rootMargin: "0px 0px -8% 0px" });
       Array.prototype.forEach.call(doc.querySelectorAll(".reveal"), function (n) { io.observe(n); });
     } else Array.prototype.forEach.call(doc.querySelectorAll(".reveal"), function (n) { n.classList.add("in"); });
 
-    var hash = (root.location.hash || "").replace("#t=", "");
-    if (MAP[hash]) select(hash, true);
+    /* A link such as map.html#t=loki-s2 opens on that title. The other page reuses one tab for this, so
+       the address can also change while the page is already open. */
+    function fromHash() {
+      var hash = (root.location.hash || "").replace("#t=", "");
+      if (!MAP[hash]) return;
+      select(hash, !ON_MAP);
+      if (ON_MAP) root.setTimeout(function () { centre(hash); }, 60); /* after the map has its size */
+    }
+    fromHash();
+    root.addEventListener("hashchange", fromHash);
   }
 
   if (doc.readyState === "loading") doc.addEventListener("DOMContentLoaded", start); else start();
