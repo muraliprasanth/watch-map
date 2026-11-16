@@ -18,9 +18,11 @@
     });
   }
 
-  /* Every title that must be seen first, following "need" links all the way back, in release order. */
+  /* Every title that must be seen first, following "need" links all the way back, in release order.
+     A title marked exact gives its own list and nothing more: that list is complete as written. */
   function chain(id, map) {
     var seen = {}, out = [];
+    if (map[id].exact) return [].concat(map[id].need).sort(function (a, b) { return cmpRelease(map[a], map[b]); });
     (function walk(x) {
       (map[x].need || []).forEach(function (n) { if (!seen[n]) { seen[n] = true; walk(n); out.push(n); } });
     })(id);
@@ -76,7 +78,20 @@
     var list = names.length === 1 ? names[0] : names.slice(0, -1).join(", ") + " and " + names[names.length - 1];
     return "Starts with " + list + (names.length === 1 ? ", which is not a Marvel Studios title and so is" : ", which are not Marvel Studios titles and so are") + " not on the map.";
   }
-  var api = { byId: byId, chain: chain, ordered: ordered, niceDate: niceDate, length: length, inWords: inWords, totalMinutes: totalMinutes, left: left, describe: describe, inOrder: inOrder, outsideNote: outsideNote };
+  /* A list of title ids with the outside films put in where their release dates fall. Gives ids and film objects. */
+  function withOutside(ids, extra, map) {
+    if (!extra || !extra.length) return ids.slice();
+    var list = ids.map(function (id, i) { return { k: map[id].release || "9999", i: i, v: id }; })
+      .concat(extra.map(function (o, i) { return { k: o.release || o.year + "-07-01", i: ids.length + i, v: o }; }));
+    list.sort(function (a, b) { return a.k < b.k ? -1 : a.k > b.k ? 1 : a.i - b.i; });
+    return list.map(function (x) { return x.v; });
+  }
+  /* " and 3 films that are not on the map", or "" */
+  function outsideCount(extra) {
+    var n = extra ? extra.length : 0;
+    return n ? " and " + n + (n === 1 ? " film that is" : " films that are") + " not on the map" : "";
+  }
+  var api = { withOutside: withOutside, outsideCount: outsideCount, byId: byId, chain: chain, ordered: ordered, niceDate: niceDate, length: length, inWords: inWords, totalMinutes: totalMinutes, left: left, describe: describe, inOrder: inOrder, outsideNote: outsideNote };
   if (typeof module !== "undefined" && module.exports) { module.exports = api; return; }
 
   /* ---------- page ---------- */
@@ -135,18 +150,17 @@
   function outsidePoster(o, step) {
     var wrap = el("div", { "class": "poster-wrap" }), b = el("div", { "class": "poster outside" }), body = el("span", { "class": "body" });
     b.appendChild(el("span", { "class": "yr", "aria-hidden": "true" }, String(o.year).slice(2, 4)));
-    b.appendChild(el("span", { "class": "step", "aria-hidden": "true" }, String(step)));
+    if (step) b.appendChild(el("span", { "class": "step", "aria-hidden": "true" }, String(step)));
     body.appendChild(el("span", { "class": "kind" }, "Not on the map"));
     body.appendChild(el("span", { "class": "ttl" }, o.title));
     body.appendChild(el("span", { "class": "len" }, o.year + " · " + length({ kind: "film", minutes: o.minutes })));
     b.appendChild(body); wrap.appendChild(b);
     return wrap;
   }
-  /* first: the outside films a path starts with; they take the first numbers */
-  function rail(ids, numbered, first) {
-    var r = el("div", { "class": "rail" }), lead = first || [];
-    lead.forEach(function (o, i) { r.appendChild(outsidePoster(o, i + 1)); });
-    ids.forEach(function (id, i) { r.appendChild(poster(id, numbered ? lead.length + i + 1 : 0)); });
+  /* items: title ids, and outside films (objects) where a list has them */
+  function rail(items, numbered) {
+    var r = el("div", { "class": "rail" });
+    items.forEach(function (it, i) { r.appendChild(typeof it === "string" ? poster(it, numbered ? i + 1 : 0) : outsidePoster(it, numbered ? i + 1 : 0)); });
     return r;
   }
 
@@ -177,11 +191,11 @@
   function summary(id) {
     var s = doc.getElementById("sum");
     if (!s) return;
-    var all = chain(id, MAP), rest = left(all, seen);
+    var all = chain(id, MAP), rest = left(all, seen), extra = (MAP[id].outside || {}).need;
     s.textContent = "";
-    if (!all.length) { s.appendChild(doc.createTextNode("Nothing comes first. You can start here.")); return; }
+    if (!all.length && !(extra && extra.length)) { s.appendChild(doc.createTextNode("Nothing comes first. You can start here.")); return; }
     s.appendChild(doc.createTextNode("Before this: "));
-    s.appendChild(el("b", null, describe(all, MAP)));
+    s.appendChild(el("b", null, describe(all, MAP) + outsideCount(extra)));
     s.appendChild(doc.createTextNode(!TICKS || rest.length === all.length ? "." : rest.length ? ". You have " + describe(rest, MAP) + " left." : ". You have seen all of it."));
   }
   function showDetail(id) {
@@ -200,12 +214,13 @@
     info.appendChild(onMap);
     top.appendChild(info); box.appendChild(top);
 
-    var all = chain(id, MAP);
+    var out = t.outside || {}, all = withOutside(chain(id, MAP), out.need, MAP);
+    var extras = withOutside(t.nice.slice().sort(function (a, b) { return cmpRelease(MAP[a], MAP[b]); }), out.nice, MAP);
     box.appendChild(el("p", { "class": "lbl" }, "Watch these first, in this order"));
     if (all.length) box.appendChild(rail(all, true)); else box.appendChild(el("p", { "class": "none" }, "Nothing. This one stands on its own."));
-    if (t.nice.length) {
+    if (extras.length) {
       box.appendChild(el("p", { "class": "lbl" }, "Adds colour, not required"));
-      box.appendChild(rail(t.nice.slice().sort(function (a, b) { return cmpRelease(MAP[a], MAP[b]); }), false));
+      box.appendChild(rail(extras, false));
     }
     var cast = G.characters.filter(function (c) { return c["in"].indexOf(id) !== -1; });
     if (cast.length) {
@@ -327,7 +342,7 @@
   function caption(id) {
     var c = $("caption"), t = MAP[id]; c.textContent = "";
     c.appendChild(el("strong", null, t.title));
-    c.appendChild(el("span", null, describe(chain(id, MAP), MAP) + " before it"));
+    c.appendChild(el("span", null, describe(chain(id, MAP), MAP) + outsideCount((MAP[id].outside || {}).need) + " before it"));
     var b = el("button", { type: "button", "class": "ghost" }, "Open the full list");
     b.addEventListener("click", function () { if (ON_MAP) root.location.href = "index.html#t=" + id; else go($("before")); });
     c.appendChild(b);
@@ -393,7 +408,7 @@
     box.appendChild(el("h3", null, heading));
     if (about) box.appendChild(el("p", { "class": "about" }, about));
     box.appendChild(el("p", { "class": "meta" }, (why ? why + " " : "") + describe(ids, MAP) + (TICKS ? "; " + describe(left(ids, seen), MAP) + " left for you." : ".") + (first && first.length ? " " + outsideNote(first) : "")));
-    box.appendChild(rail(ids, numbered, first));
+    box.appendChild(rail((first || []).concat(ids), numbered));
     paint();
   }
   function showPerson(ch) {

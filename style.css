@@ -465,6 +465,7 @@ body.stage-full #stage { background: #000; }
 .wall-pic img { display: block; width: 100%; height: auto; object-fit: cover; }
 .walls-wide .wall-pic img { aspect-ratio: 16 / 10; }
 .walls-tall .wall-pic img { aspect-ratio: 3 / 4; }
+#w-road-to-doomsday .wall-pic img { aspect-ratio: 9 / 16; } /* the guide's own poster is shown whole */
 .wall-text { display: flex; flex-direction: column; flex: 1; gap: 6px; padding: 16px 18px 18px; }
 .wall h3 { font-family: var(--display); font-weight: 400; font-size: 1.35rem; letter-spacing: 0.03em; text-transform: uppercase; line-height: 1.1; }
 .wall p { margin: 0; }
