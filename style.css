@@ -369,8 +369,14 @@ a.tool { text-decoration: none; }
 :root[data-theme="green"] body[data-page="map"] .bar > :not(#view):not(.home-link) { display: none; }
 :root[data-theme="green"] body[data-page="map"] .home-link { display: inline-block; margin-left: auto; pointer-events: auto; background: #082214; color: #eaf6e4; border-color: #cfe9c8; text-decoration: none; }
 :root[data-theme="green"] body[data-page="map"] #view { margin-left: 0; pointer-events: auto; }
-:root[data-theme="green"] body[data-page="map"] #map { height: 100vh; height: 100dvh; padding: 0; }
-:root[data-theme="green"] body[data-page="map"] #map > :not(.map-scroll):not(#strands) { display: none; }
+:root[data-theme="green"] body[data-page="map"] #map { height: 100vh; height: 100dvh; padding: 0 0 62px; } /* the strip at the foot is the quote's */
+:root[data-theme="green"] body[data-page="map"] #map > :not(.map-scroll):not(#strands):not(.sacred-quote) { display: none; }
+/* one line at the foot of the Sacred Timeline view; it is not there in the Default view */
+.sacred-quote { display: none; }
+:root[data-theme="green"] body[data-page="map"] .sacred-quote { display: block; position: fixed; left: 0; right: 0; bottom: 12px; z-index: 2; margin: 0; padding: 0 16px; text-align: center; pointer-events: none;
+  font: italic 600 clamp(0.82rem, 1.5vw, 1.02rem) var(--body); letter-spacing: 0.01em; color: #eaf6e4; text-shadow: 0 0 6px #020d08, 0 0 6px #020d08, 0 0 14px #020d08; }
+@media (max-width: 520px) { :root[data-theme="green"] body[data-page="map"] #map { padding-bottom: 82px; } :root[data-theme="green"] body[data-page="map"] .sacred-quote { bottom: 16px; } }
+.sacred-quote span { display: block; margin-top: 2px; font-style: normal; font-size: 0.74em; letter-spacing: 0.14em; text-transform: uppercase; color: #9fe0b4; }
 :root[data-theme="green"] body[data-page="map"] #strands { display: block; position: fixed; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; }
 :root[data-theme="green"] body[data-page="map"] .map-scroll { position: relative; z-index: 1; overscroll-behavior: contain; border: 0; border-radius: 0; box-shadow: none; background: none; scrollbar-color: #1f6b3f transparent; }
 :root[data-theme="green"] body[data-page="map"] .band { fill: transparent; }
@@ -408,15 +414,15 @@ a.tool { text-decoration: none; }
 .stage-pill:hover { background: #f4f0e8; color: #0b0a0e; }
 .stage-pill.quiet { border-color: rgba(244, 240, 232, 0.45); color: rgba(244, 240, 232, 0.8); font-size: 0.76rem; }
 @keyframes stage-in { from { opacity: 0; } to { opacity: 1; } }
-/* the snap: the page is wiped away from left to right (the grains are drawn on the stage), then nothing is left */
-body.snapping { overflow: hidden; }
-body.snapping > .bar, body.snapping > main, body.snapping > .foot { -webkit-mask-image: linear-gradient(90deg, transparent 0, transparent 46%, #000 54%, #000 100%); mask-image: linear-gradient(90deg, transparent 0, transparent 46%, #000 54%, #000 100%);
-  -webkit-mask-size: 220% 100%; mask-size: 220% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; animation: snap-away 2.4s ease-in forwards; }
-@keyframes snap-away { from { -webkit-mask-position: 100% 0; mask-position: 100% 0; } to { -webkit-mask-position: 0 0; mask-position: 0 0; } }
+/* "I am Iron Man": the page is wiped away from left to right (the grains are drawn on the stage), then nothing is left */
+body.to-dust { overflow: hidden; }
+body.to-dust > .bar, body.to-dust > main, body.to-dust > .foot { -webkit-mask-image: linear-gradient(90deg, transparent 0, transparent 46%, #000 54%, #000 100%); mask-image: linear-gradient(90deg, transparent 0, transparent 46%, #000 54%, #000 100%);
+  -webkit-mask-size: 220% 100%; mask-size: 220% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; animation: dust-away 2.4s ease-in forwards; }
+@keyframes dust-away { from { -webkit-mask-position: 100% 0; mask-position: 100% 0; } to { -webkit-mask-position: 0 0; mask-position: 0 0; } }
 body.stage-full { overflow: hidden; }
 body.stage-full > .bar, body.stage-full > main, body.stage-full > .foot { visibility: hidden; animation: none; }
 body.stage-full #stage { background: #000; }
-@media (prefers-reduced-motion: reduce) { body.snapping > .bar, body.snapping > main, body.snapping > .foot { animation-duration: 0.01s; } }
+@media (prefers-reduced-motion: reduce) { body.to-dust > .bar, body.to-dust > main, body.to-dust > .foot { animation-duration: 0.01s; } }
 
 /* Quiz page: one card per question */
 .quiz-page { padding-top: 44px; max-width: 820px; }
