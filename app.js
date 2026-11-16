@@ -5,6 +5,18 @@
   /* ---------- pure helpers (also used by the tests) ---------- */
   function byId(titles) { var m = {}; titles.forEach(function (t) { m[t.id] = t; }); return m; }
   function cmpRelease(a, b) { return (a.release || "9999").localeCompare(b.release || "9999"); }
+  /* A list of title ids in release order, or in story order (titles with no place in the story go last). */
+  function inOrder(ids, map, order) {
+    return ids.slice().sort(function (a, b) {
+      var x = map[a], y = map[b];
+      if (order === "story") {
+        if (x.order !== null && y.order !== null && x.order !== y.order) return x.order - y.order;
+        if (x.order === null && y.order !== null) return 1;
+        if (y.order === null && x.order !== null) return -1;
+      }
+      return cmpRelease(x, y);
+    });
+  }
 
   /* Every title that must be seen first, following "need" links all the way back, in release order. */
   function chain(id, map) {
@@ -57,15 +69,20 @@
     return s;
   }
 
-  var api = { byId: byId, chain: chain, ordered: ordered, niceDate: niceDate, length: length, inWords: inWords, totalMinutes: totalMinutes, left: left, describe: describe };
+  var api = { byId: byId, chain: chain, ordered: ordered, niceDate: niceDate, length: length, inWords: inWords, totalMinutes: totalMinutes, left: left, describe: describe, inOrder: inOrder };
   if (typeof module !== "undefined" && module.exports) { module.exports = api; return; }
 
   /* ---------- page ---------- */
   var doc = root.document, G = root.GUIDE, T = G.titles, MAP = byId(T);
   var state = { order: "release", kinds: { film: true, series: true, special: true }, selected: null, group: null };
+  /* The tick list ("seen it") is optional. config.js switches it on or off for a whole copy of the site.
+     With it off, nothing about what a visitor has watched is shown, asked for or stored. */
+  var TICKS = !!(root.WATCHMAP && root.WATCHMAP.ticks);
   var seen = {};
-  try { (JSON.parse(root.localStorage.getItem("watchmap.seen") || "[]") || []).forEach(function (id) { if (MAP[id]) seen[id] = true; }); } catch (e) { seen = {}; }
-  function saveSeen() { try { root.localStorage.setItem("watchmap.seen", JSON.stringify(Object.keys(seen))); } catch (e) { /* kept for this visit only */ } }
+  if (TICKS) {
+    try { (JSON.parse(root.localStorage.getItem("watchmap.seen") || "[]") || []).forEach(function (id) { if (MAP[id]) seen[id] = true; }); } catch (e) { seen = {}; }
+  }
+  function saveSeen() { if (!TICKS) return; try { root.localStorage.setItem("watchmap.seen", JSON.stringify(Object.keys(seen))); } catch (e) { /* kept for this visit only */ } }
 
   var SVGNS = "http://www.w3.org/2000/svg";
   var KIND = { film: "Film", series: "Series", special: "Special" };
@@ -100,7 +117,7 @@
     b.appendChild(body);
     b.addEventListener("click", function () { select(id, true); });
     wrap.appendChild(b);
-    if (t.status !== "upcoming") {
+    if (TICKS && t.status !== "upcoming") {
       var k = el("button", { type: "button", "class": "tick", "aria-pressed": seen[id] ? "true" : "false", "aria-label": (seen[id] ? "Seen: " : "Mark as seen: ") + t.title, title: "Seen it" }, "✓");
       k.addEventListener("click", function (e) { e.stopPropagation(); toggleSeen(id); });
       wrap.appendChild(k);
@@ -127,6 +144,7 @@
   }
 
   function progress() {
+    if (!TICKS) { $("progress").hidden = true; $("stats").hidden = false; return; }
     var out = T.filter(function (t) { return t.status === "released"; }), n = out.filter(function (t) { return seen[t.id]; }).length;
     $("progress").hidden = n === 0;
     $("stats").hidden = n !== 0;
@@ -144,7 +162,7 @@
     if (!all.length) { s.appendChild(doc.createTextNode("Nothing comes first. You can start here.")); return; }
     s.appendChild(doc.createTextNode("Before this: "));
     s.appendChild(el("b", null, describe(all, MAP)));
-    s.appendChild(doc.createTextNode(rest.length === all.length ? "." : rest.length ? ". You have " + describe(rest, MAP) + " left." : ". You have seen all of it."));
+    s.appendChild(doc.createTextNode(!TICKS || rest.length === all.length ? "." : rest.length ? ". You have " + describe(rest, MAP) + " left." : ". You have seen all of it."));
   }
   function showDetail(id) {
     var t = MAP[id], box = $("detail"); box.textContent = ""; box.classList.remove("fade"); void box.offsetWidth; box.classList.add("fade");
@@ -312,13 +330,18 @@
   function press(selector, target) {
     Array.prototype.forEach.call(doc.querySelectorAll(selector), function (b) { b.setAttribute("aria-pressed", b === target ? "true" : "false"); });
   }
-  function showGroup(boxId, heading, why, ids, numbered) {
+  function showGroup(boxId, heading, why, ids, numbered, about) {
     state.group = ids; state.selected = null; $("caption").textContent = "";
     var box = $(boxId); box.textContent = ""; box.classList.remove("fade"); void box.offsetWidth; box.classList.add("fade");
     box.appendChild(el("h3", null, heading));
-    box.appendChild(el("p", { "class": "meta" }, (why ? why + " " : "") + describe(ids, MAP) + "; " + describe(left(ids, seen), MAP) + " left for you."));
+    if (about) box.appendChild(el("p", { "class": "about" }, about));
+    box.appendChild(el("p", { "class": "meta" }, (why ? why + " " : "") + describe(ids, MAP) + (TICKS ? "; " + describe(left(ids, seen), MAP) + " left for you." : ".")));
     box.appendChild(rail(ids, numbered));
     paint();
+  }
+  function showPerson(ch) {
+    var ids = inOrder(ch["in"], MAP, state.order);
+    showGroup("people-detail", ch.name, ch.alias + ". " + (state.order === "story" ? "In story order." : "In release order."), ids, false, ch.bio);
   }
   function personChip(ch, small) {
     var b = el("button", { type: "button", "class": "person", "aria-pressed": "false" });
@@ -327,8 +350,8 @@
     b.addEventListener("click", function () {
       var main = doc.querySelector('#people-chips .person[data-id="' + ch.id + '"]');
       press("#people-chips .person", main); press("#path-cards .card", null); $("path-detail").textContent = "";
-      var ids = ch["in"].slice().sort(function (a, c) { return cmpRelease(MAP[a], MAP[c]); });
-      showGroup("people-detail", ch.name, ch.alias + ".", ids, false);
+      state.person = ch;
+      showPerson(ch);
       if (small) go($("people"));
     });
     if (!small) b.setAttribute("data-id", ch.id);
@@ -411,7 +434,7 @@
     }
 
     Array.prototype.forEach.call(doc.querySelectorAll(".seg button"), function (b) {
-      b.addEventListener("click", function () { state.order = b.getAttribute("data-order"); press(".seg button", b); drawMap(); if (state.selected) centre(state.selected); });
+      b.addEventListener("click", function () { state.order = b.getAttribute("data-order"); press(".seg button", b); drawMap(); if (state.person) showPerson(state.person); if (state.selected) centre(state.selected); });
     });
     Array.prototype.forEach.call(doc.querySelectorAll(".chip[data-kind]"), function (b) {
       b.addEventListener("click", function () { var k = b.getAttribute("data-kind"); state.kinds[k] = !state.kinds[k]; b.setAttribute("aria-pressed", state.kinds[k] ? "true" : "false"); paint(); });
@@ -421,7 +444,7 @@
     G.paths.forEach(function (pth) {
       var c = el("button", { type: "button", "class": "card reveal", "aria-pressed": "false" });
       c.appendChild(el("b", null, pth.name)); c.appendChild(el("span", null, pth.why)); c.appendChild(el("i", null, describe(pth.titles, MAP)));
-      c.addEventListener("click", function () { press("#path-cards .card", c); press("#people-chips .person", null); $("people-detail").textContent = ""; showGroup("path-detail", pth.name, pth.why, pth.titles, true); });
+      c.addEventListener("click", function () { press("#path-cards .card", c); press("#people-chips .person", null); $("people-detail").textContent = ""; state.person = null; showGroup("path-detail", pth.name, pth.why, pth.titles, true); });
       $("path-cards").appendChild(c);
     });
     G.characters.forEach(function (ch) { $("people-chips").appendChild(personChip(ch, false)); });

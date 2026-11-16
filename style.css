@@ -190,3 +190,35 @@ h3 { margin: 0; }
 
 /* the logo beside the name: a photo of comic books by Erik Mclean, from Unsplash */
 .bar .logo { width: 34px; height: 34px; border-radius: 9px; align-self: center; margin-right: 3px; object-fit: cover; }
+
+/* a link styled like the small round buttons in the top bar */
+a.tool { text-decoration: none; }
+.back-link { display: none; }
+.bar nav a[aria-current="page"] { color: var(--ink); }
+.terms-link { display: none; }
+@media (max-width: 860px) { .terms-link, .back-link { display: inline-block; } .tool + .tool { margin-left: 0; } }
+
+/* Terms page */
+.terms-page { padding-top: 40px; }
+.terms-title { font-family: var(--display); font-weight: 400; font-size: clamp(2.2rem, 7vw, 3.6rem); letter-spacing: 0.02em; text-transform: uppercase; line-height: 1.05; margin: 8px 0 12px; }
+.terms-tools { position: sticky; top: 55px; z-index: 20; padding: 12px 0; background: color-mix(in srgb, var(--bg) 92%, transparent); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+.terms-find { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.terms-find span { font-weight: 700; color: var(--muted); font-size: 0.9rem; white-space: nowrap; }
+.terms-find input { flex: 1; min-width: 0; max-width: 420px; font: inherit; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 9px 14px; }
+.terms-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+.terms-tabs button { flex: none; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 7px 15px; font-weight: 700; font-size: 0.9rem; color: var(--muted); }
+.terms-tabs button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.terms-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 430px), 1fr)); gap: 16px; }
+.term { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 20px; scroll-margin-top: 190px; }
+.term-lit { border-color: var(--gold); box-shadow: 0 0 0 3px color-mix(in srgb, var(--gold) 30%, transparent); }
+.term h2 { font-family: var(--display); font-weight: 400; font-size: 1.6rem; letter-spacing: 0.03em; text-transform: uppercase; line-height: 1.1; margin: 0 0 4px; }
+.term-also { margin: 0 0 12px; color: var(--gold); font-weight: 700; font-size: 0.9rem; }
+.term dl { margin: 0; }
+.term dt { margin-top: 12px; font-size: 0.74rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.term dd { margin: 3px 0 0; }
+.term-see { margin: 16px 0 0; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 0.84rem; }
+.term-see span { color: var(--muted); font-weight: 700; margin-right: 2px; }
+.term-see b { font-weight: 600; border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px; }
+
+/* a copy of the site with the tick list switched off (config.js) hides every mention of it */
+.no-ticks [data-ticks] { display: none; }

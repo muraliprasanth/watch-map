@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Terms · Watch Map</title>
+<meta name="description" content="An unofficial fan guide. Short explanations of the Infinity Stones, the Gauntlet, Mjolnir, Captain America's shield, the TVA and the other things, groups and places the Marvel Studios films and series keep coming back to.">
+<meta name="theme-color" content="#0b0a0e">
+<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preload" href="fonts/anton.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="bar">
+  <a class="word" href="index.html" aria-label="Watch Map, back to the guide"><img class="logo" src="icon-180.png" width="34" height="34" alt=""><span class="word-a">WATCH</span><span class="word-b">MAP</span></a>
+  <nav aria-label="Pages">
+    <a href="index.html">The guide</a>
+    <a href="index.html#map">The map</a>
+    <a href="index.html#people">Characters</a>
+    <a href="terms.html" aria-current="page">Terms</a>
+  </nav>
+  <a class="tool back-link" href="index.html">Guide</a>
+  <button type="button" id="theme" class="tool" title="Switch between dark and light">Light</button>
+</header>
+
+<main id="top" class="block terms-page">
+  <div class="head">
+    <p class="num">TERMS</p>
+    <h1 class="terms-title">What is that, again?</h1>
+    <p class="sub">The things, groups, places and ideas the story keeps coming back to: what each one is, where it comes from, what it can do, and what happens to it. <strong>It gives away plot points.</strong></p>
+  </div>
+
+  <div class="terms-tools">
+    <label class="terms-find"><span>Find a term</span><input type="search" id="find" placeholder="Mjolnir, TVA, vibranium…" autocomplete="off"></label>
+    <div class="terms-tabs" id="tabs" role="group" aria-label="Kinds of term"></div>
+  </div>
+
+  <p class="meta" id="count" aria-live="polite"></p>
+  <div class="terms-list" id="list"></div>
+  <noscript><p class="meta">This page needs JavaScript to show the terms.</p></noscript>
+</main>
+
+<footer class="foot">
+  <p><strong>Unofficial.</strong> This is a fan-made guide. It is not affiliated with, endorsed by or sponsored by Marvel or The Walt Disney Company. Names belong to their owners and are used here only to describe the works.</p>
+  <p>These explanations are the guide's own short summaries of what the films and series show or say. Where the story leaves something unexplained, the entry says so. <a href="index.html">Back to the guide</a>.</p>
+</footer>
+
+<script src="terms.js"></script>
+<script src="terms-page.js"></script>
+</body>
+</html>

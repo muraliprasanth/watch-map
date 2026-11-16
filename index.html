@@ -4,12 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Watch Map: an unofficial guide to the Marvel films and series</title>
-<meta name="description" content="An unofficial fan guide. Every Marvel Studios film, series and special on one map: what to watch first, release and story order, watch paths, and a tick list of what you have seen.">
+<meta name="description" content="An unofficial fan guide. Every Marvel Studios film, series and special on one map: what to watch first, release and story order, watch paths and the main characters.">
 <meta name="theme-color" content="#0b0a0e">
 <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="preload" href="fonts/anton.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="style.css">
+<script src="config.js"></script>
 </head>
 <body>
 <header class="bar">
@@ -20,7 +21,9 @@
     <a href="#map">The map</a>
     <a href="#paths">Paths</a>
     <a href="#people">Characters</a>
+    <a href="terms.html" target="_blank" rel="noopener">Terms</a>
   </nav>
+  <a class="tool terms-link" href="terms.html" target="_blank" rel="noopener">Terms</a>
   <button type="button" id="theme" class="tool" title="Switch between dark and light">Light</button>
 </header>
 
@@ -30,7 +33,7 @@
     <div class="hero-in">
       <p class="kicker">An unofficial fan guide</p>
       <h1><span id="count">Sixty-seven</span> stories.<br><em>One long thread.</em></h1>
-      <p class="lede">Every Marvel Studios film, series and special, from 2008 to what is coming next. Find what is enough to watch before the one you want, follow a short path, and tick off what you have seen.</p>
+      <p class="lede">Every Marvel Studios film, series and special, from 2008 to what is coming next. Find what is enough to watch before the one you want, and follow a short path<span data-ticks>, and tick off what you have seen</span>.</p>
       <form class="pick" id="hero-pick">
         <label for="hero-select">I want to watch</label>
         <div class="pick-row">
@@ -65,7 +68,7 @@
     <div class="head reveal">
       <p class="num">02</p>
       <h2>By phase</h2>
-      <p class="sub">The whole run in release order. Swipe each row sideways. Tap a card to see what comes before it; tap its circle to mark it as seen.</p>
+      <p class="sub">The whole run in release order. Swipe each row sideways. Tap a card to see what comes before it<span data-ticks>; tap its circle to mark it as seen</span>.</p>
     </div>
     <div id="phase-rails"></div>
   </section>
@@ -92,7 +95,7 @@
       <svg id="graph" role="img" aria-label="Map of titles and the titles they build on"></svg>
     </div>
     <div class="caption" id="caption" aria-live="polite"></div>
-    <p class="legend"><span class="key need"></span> needed first <span class="key nice"></span> adds colour <span class="key seen"></span> seen <span class="note" id="order-note"></span></p>
+    <p class="legend"><span class="key need"></span> needed first <span class="key nice"></span> adds colour <span data-ticks><span class="key seen"></span> seen </span><span class="note" id="order-note"></span></p>
   </section>
 
   <section id="paths" class="block">
@@ -109,7 +112,7 @@
     <div class="head reveal">
       <p class="num">05</p>
       <h2>Characters</h2>
-      <p class="sub">Pick a character to see where their story runs. Main appearances only; short cameos are mostly left out.</p>
+      <p class="sub">Pick a character to see where their story runs. Main appearances only; short cameos are mostly left out. The list follows the switch above the map: release order, or story order.</p>
     </div>
     <div class="people" id="people-chips"></div>
     <div id="people-detail" class="group-detail" aria-live="polite"></div>
@@ -118,7 +121,7 @@
 
 <footer class="foot">
   <p><strong>Unofficial.</strong> This is a fan-made guide. It is not affiliated with, endorsed by or sponsored by Marvel or The Walt Disney Company. Titles and character names belong to their owners and are used here only to describe the works. No studio artwork, logos or music are used.</p>
-  <p>Release dates, phases and episode counts were checked against Wikipedia on <span id="checked"></span>. Story order is approximate because sources disagree. "What to watch first" and the watch paths are this guide's own suggestions. Your ticks are kept in this browser only.</p>
+  <p>Release dates, phases and episode counts were checked against Wikipedia on <span id="checked"></span>. Story order is approximate because sources disagree. "What to watch first" and the watch paths are this guide's own suggestions.<span data-ticks> Your ticks are kept in this browser only.</span></p>
   <p>Headline type: Anton, by The Anton Project Authors, under the SIL Open Font License 1.1 (<a href="fonts/OFL.txt">licence</a>).</p>
 </footer>
 
