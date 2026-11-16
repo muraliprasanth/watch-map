@@ -69,7 +69,14 @@
     return s;
   }
 
-  var api = { byId: byId, chain: chain, ordered: ordered, niceDate: niceDate, length: length, inWords: inWords, totalMinutes: totalMinutes, left: left, describe: describe, inOrder: inOrder };
+  /* The films a path starts with that the guide does not list (they are not Marvel Studios titles), as a sentence. */
+  function outsideNote(first) {
+    if (!first || !first.length) return "";
+    var names = first.map(function (o) { return o.title + " (" + o.year + ")"; });
+    var list = names.length === 1 ? names[0] : names.slice(0, -1).join(", ") + " and " + names[names.length - 1];
+    return "Starts with " + list + (names.length === 1 ? ", which is not a Marvel Studios title and so is" : ", which are not Marvel Studios titles and so are") + " not on the map.";
+  }
+  var api = { byId: byId, chain: chain, ordered: ordered, niceDate: niceDate, length: length, inWords: inWords, totalMinutes: totalMinutes, left: left, describe: describe, inOrder: inOrder, outsideNote: outsideNote };
   if (typeof module !== "undefined" && module.exports) { module.exports = api; return; }
 
   /* ---------- page ---------- */
@@ -124,9 +131,22 @@
     }
     return wrap;
   }
-  function rail(ids, numbered) {
-    var r = el("div", { "class": "rail" });
-    ids.forEach(function (id, i) { r.appendChild(poster(id, numbered ? i + 1 : 0)); });
+  /* A film a path starts with that is not on the map: a card that says what it is, and does nothing when pressed. */
+  function outsidePoster(o, step) {
+    var wrap = el("div", { "class": "poster-wrap" }), b = el("div", { "class": "poster outside" }), body = el("span", { "class": "body" });
+    b.appendChild(el("span", { "class": "yr", "aria-hidden": "true" }, String(o.year).slice(2, 4)));
+    b.appendChild(el("span", { "class": "step", "aria-hidden": "true" }, String(step)));
+    body.appendChild(el("span", { "class": "kind" }, "Not on the map"));
+    body.appendChild(el("span", { "class": "ttl" }, o.title));
+    body.appendChild(el("span", { "class": "len" }, o.year + " · " + length({ kind: "film", minutes: o.minutes })));
+    b.appendChild(body); wrap.appendChild(b);
+    return wrap;
+  }
+  /* first: the outside films a path starts with; they take the first numbers */
+  function rail(ids, numbered, first) {
+    var r = el("div", { "class": "rail" }), lead = first || [];
+    lead.forEach(function (o, i) { r.appendChild(outsidePoster(o, i + 1)); });
+    ids.forEach(function (id, i) { r.appendChild(poster(id, numbered ? lead.length + i + 1 : 0)); });
     return r;
   }
 
@@ -367,13 +387,13 @@
   function press(selector, target) {
     Array.prototype.forEach.call(doc.querySelectorAll(selector), function (b) { b.setAttribute("aria-pressed", b === target ? "true" : "false"); });
   }
-  function showGroup(boxId, heading, why, ids, numbered, about) {
+  function showGroup(boxId, heading, why, ids, numbered, about, first) {
     state.group = ids; state.selected = null; $("caption").textContent = "";
     var box = $(boxId); box.textContent = ""; box.classList.remove("fade"); void box.offsetWidth; box.classList.add("fade");
     box.appendChild(el("h3", null, heading));
     if (about) box.appendChild(el("p", { "class": "about" }, about));
-    box.appendChild(el("p", { "class": "meta" }, (why ? why + " " : "") + describe(ids, MAP) + (TICKS ? "; " + describe(left(ids, seen), MAP) + " left for you." : ".")));
-    box.appendChild(rail(ids, numbered));
+    box.appendChild(el("p", { "class": "meta" }, (why ? why + " " : "") + describe(ids, MAP) + (TICKS ? "; " + describe(left(ids, seen), MAP) + " left for you." : ".") + (first && first.length ? " " + outsideNote(first) : "")));
+    box.appendChild(rail(ids, numbered, first));
     paint();
   }
   function showPerson(ch) {
@@ -486,8 +506,8 @@
 
     G.paths.forEach(function (pth) {
       var c = el("button", { type: "button", "class": "card reveal", "aria-pressed": "false" });
-      c.appendChild(el("b", null, pth.name)); c.appendChild(el("span", null, pth.why)); c.appendChild(el("i", null, describe(pth.titles, MAP)));
-      c.addEventListener("click", function () { press("#path-cards .card", c); press("#people-chips .person", null); $("people-detail").textContent = ""; state.person = null; showGroup("path-detail", pth.name, pth.why, pth.titles, true); });
+      c.appendChild(el("b", null, pth.name)); c.appendChild(el("span", null, pth.why)); c.appendChild(el("i", null, describe(pth.titles, MAP) + (pth.first && pth.first.length ? ", after " + pth.first.length + (pth.first.length === 1 ? " older film" : " older films") : "")));
+      c.addEventListener("click", function () { press("#path-cards .card", c); press("#people-chips .person", null); $("people-detail").textContent = ""; state.person = null; showGroup("path-detail", pth.name, pth.why, pth.titles, true, "", pth.first); });
       $("path-cards").appendChild(c);
     });
     G.characters.forEach(function (ch) { $("people-chips").appendChild(personChip(ch, false)); });

@@ -153,6 +153,10 @@ h3 { margin: 0; }
 .poster .kind { display: inline-block; font-size: 0.62rem; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: #1b1820; background: #f6c453; border: 2px solid #121014; padding: 0 6px; margin-bottom: 8px; transform: rotate(-2.5deg); transform-origin: 0 100%; }
 .poster .ttl { display: block; font-family: var(--display); font-size: 1.22rem; line-height: 1.12; letter-spacing: 0.02em; text-transform: uppercase; overflow-wrap: break-word; text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.6); }
 .poster .len { display: block; margin-top: 5px; font-size: 0.74rem; font-weight: 600; opacity: 0.9; }
+/* a film a path starts with that is not on the map: plain grey, and it does not move when pointed at */
+.poster.outside { background: linear-gradient(155deg, #5b5a63, #1f1e25 78%); box-shadow: 5px 5px 0 #2b2a31; }
+.poster.outside:hover { transform: none; box-shadow: 5px 5px 0 #2b2a31; }
+.poster.outside .kind { background: #f4f0e8; }
 .poster.soon { border-style: dashed; background: repeating-linear-gradient(135deg, hsl(var(--h) 30% 22%) 0 12px, hsl(var(--h) 30% 18%) 12px 24px); }
 .poster.soon .kind { background: #f4f0e8; }
 .poster.soon .yr { color: rgba(255, 255, 255, 0.15); -webkit-text-stroke: 0; }
