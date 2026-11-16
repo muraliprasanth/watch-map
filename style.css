@@ -300,5 +300,29 @@ a.tool { text-decoration: none; }
 .term-see b { font-weight: 700; border: 2px solid var(--outline); border-radius: 4px; padding: 1px 9px; background: var(--bg2); }
 @media (max-width: 560px) { .terms-find { gap: 10px; } .terms-find span { padding: 3px 7px; letter-spacing: 0.08em; } .terms-find input { padding: 7px 8px; font-size: 0.95rem; } .term { padding: 16px; } }
 
+.hero-more { margin: 18px 0 0; font-weight: 800; }
+
+/* Wallpapers page: a card per photo, wide ones and tall ones in their own grids */
+.walls-page { padding-top: 44px; }
+.walls-part { margin-top: 46px; }
+.walls-h { display: flex; align-items: baseline; gap: 12px; margin: 0 0 4px; font-size: clamp(1.5rem, 4vw, 2.1rem); }
+.walls-h span { font-family: var(--body); font-size: 0.8rem; font-weight: 800; letter-spacing: 0.04em; color: var(--pop-ink); background: var(--pop); border: 2px solid var(--pop-line); padding: 0 8px; }
+.walls-part > .meta { margin: 0 0 20px; }
+.walls { display: grid; gap: 28px 24px; padding-right: 6px; }
+.walls-wide { grid-template-columns: repeat(auto-fill, minmax(min(100%, 330px), 1fr)); }
+.walls-tall { grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); }
+.wall { display: flex; flex-direction: column; overflow: hidden; border: 3px solid var(--outline); border-radius: 6px; background: var(--panel); box-shadow: 6px 6px 0 var(--drop); }
+.wall-pic { display: block; background: var(--bg2); border-bottom: 3px solid var(--outline); }
+.wall-pic img { display: block; width: 100%; height: auto; object-fit: cover; }
+.walls-wide .wall-pic img { aspect-ratio: 16 / 10; }
+.walls-tall .wall-pic img { aspect-ratio: 3 / 4; }
+.wall-text { display: flex; flex-direction: column; flex: 1; gap: 6px; padding: 16px 18px 18px; }
+.wall h3 { font-family: var(--display); font-weight: 400; font-size: 1.35rem; letter-spacing: 0.03em; text-transform: uppercase; line-height: 1.1; }
+.wall p { margin: 0; }
+.wall-facts { font-size: 0.82rem; font-weight: 700; color: var(--gold); }
+.wall-by { margin-bottom: 10px; font-size: 0.86rem; color: var(--muted); }
+.wall-get { display: block; margin-top: auto; text-align: center; text-decoration: none; }
+.wall-get span { font-weight: 600; white-space: nowrap; }
+
 /* a copy of the site with the tick list switched off (config.js) hides every mention of it */
 .no-ticks [data-ticks] { display: none; }
