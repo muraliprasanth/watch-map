@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-theme="dark" data-home>
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -16,17 +16,19 @@
 <body data-page="guide">
 <header class="bar">
   <a class="word" href="#top" aria-label="Watch Map, top of page"><img class="logo" src="icon-180.png" width="34" height="34" alt=""><span class="word-a">WATCH</span><span class="word-b">MAP</span></a>
+  <a class="logo-clock-link" href="https://youtu.be/irVNGjRFZGk" target="_blank" rel="noopener noreferrer" title="Avengers: Doomsday, the official trailer, on YouTube" aria-label="Avengers: Doomsday, the official trailer, on YouTube"><svg class="logo-clock" viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><circle class="logo-clock-ring" cx="16" cy="16" r="13"/><path class="logo-clock-marks" d="M16 5v3M16 24v3M5 16h3M24 16h3"/><line class="logo-clock-hour" x1="16" y1="16" x2="16" y2="10"/><line class="logo-clock-minute" x1="16" y1="16" x2="16" y2="7"/><line class="logo-clock-second" x1="16" y1="18" x2="16" y2="6"/><circle class="logo-clock-pin" cx="16" cy="16" r="1.6"/></svg></a>
   <nav aria-label="Sections">
     <a href="#before">Before you watch</a>
     <a href="#phases">By phase</a>
-    <a href="map.html" target="_blank" rel="noopener">The map</a>
+    <a href="map.html">The map</a>
     <a href="#paths">Paths</a>
     <a href="#people">Characters</a>
-    <a href="terms.html" target="_blank" rel="noopener">Terms</a>
-    <a href="wallpapers.html" target="_blank" rel="noopener">Wallpapers</a>
-    <a href="quiz.html" target="_blank" rel="noopener">Quiz</a>
+    <a href="terms.html">Terms</a>
+    <a href="wallpapers.html">Wallpapers</a>
+    <a href="quiz.html">Quiz</a>
+    <a href="animation.html">Animation</a>
   </nav>
-  <a class="tool terms-link" href="terms.html" target="_blank" rel="noopener">Terms</a>
+  <a class="tool terms-link" href="terms.html">Terms</a>
   <button type="button" id="theme" class="tool">Dark</button>
 </header>
 
@@ -49,7 +51,7 @@
         <p id="progress-text"></p>
       </div>
       <p class="stats" id="stats"></p>
-      <p class="hero-more"><a href="map.html" target="_blank" rel="noopener">Open the map →</a> <a href="quiz.html" target="_blank" rel="noopener">Take the quiz →</a> <a href="wallpapers.html" target="_blank" rel="noopener">Wallpapers to download →</a></p>
+      <p class="hero-more"><a href="map.html">Open the map →</a> <a href="quiz.html">Take the quiz →</a> <a href="animation.html">Animation →</a> <a href="wallpapers.html">Wallpapers to download →</a></p>
       <div class="panels" aria-hidden="true"><i></i><i></i><i></i></div>
     </div>
     <a class="down" href="#before" aria-label="Go to the first section">↓</a>
@@ -82,9 +84,9 @@
     <div class="head reveal">
       <p class="num">03</p>
       <h2>The map</h2>
-      <p class="sub">Every title as a dot, with a line running to each title that needs it. The map has its own page, so it can fill the whole window.</p>
+      <p class="sub">Every title as a dot, with a line running to each title that needs it. The map has its own page, so it can fill the whole window. It opens in this tab; the Back button brings you here again.</p>
     </div>
-    <p class="reveal"><a class="cta door" href="map.html" target="_blank" rel="noopener">Open the map →</a></p>
+    <p class="reveal"><a class="cta door" href="map.html">Open the map →</a></p>
   </section>
 
   <!-- The map itself. On this page it stays hidden (style.css); map.html, generated from this file, shows only this. -->
@@ -112,7 +114,7 @@
     </div>
     <div class="caption" id="caption" aria-live="polite"></div>
     <p class="legend"><span class="key need"></span> needed first <span class="key nice"></span> adds colour <span data-ticks><span class="key seen"></span> seen </span><span class="note" id="order-note"></span></p>
-    <p class="map-unofficial">Unofficial fan guide. Not affiliated with Marvel or The Walt Disney Company.</p>
+    <p class="map-unofficial">Unofficial fan guide. Not affiliated with Marvel or The Walt Disney Company. Developed and maintained by <a href="https://letterboxd.com/palkova___/" target="_blank" rel="noopener noreferrer">palkova___</a> on Letterboxd.</p>
   </section>
 
   <section id="paths" class="block">
@@ -129,13 +131,7 @@
     <div class="head reveal">
       <p class="num">05</p>
       <h2>Characters</h2>
-      <p class="sub">Pick a character to see where their story runs. Main appearances only; short cameos are mostly left out. The list follows the switch below: release order, or story order.</p>
-    </div>
-    <div class="controls reveal">
-      <div class="seg" role="group" aria-label="Order">
-        <button type="button" data-order="release" aria-pressed="true">Release order</button>
-        <button type="button" data-order="story" aria-pressed="false">Story order</button>
-      </div>
+      <p class="sub">Pick a character to see where their story runs. Main appearances only; short cameos are mostly left out. Each list is in release order.</p>
     </div>
     <div class="people" id="people-chips"></div>
     <div id="people-detail" class="group-detail" aria-live="polite"></div>
@@ -146,17 +142,12 @@
   <p><strong>Unofficial.</strong> This is a fan-made guide. It is not affiliated with, endorsed by or sponsored by Marvel or The Walt Disney Company. Titles and character names belong to their owners and are used here only to describe the works. The guide itself uses no studio artwork, logos or music. The <a href="wallpapers.html">Wallpapers</a> page offers photographs taken by Unsplash photographers; the comics, toys and logo that some of them show belong to their owners.</p>
   <p>Release dates, phases and episode counts were checked against Wikipedia on <span id="checked"></span>. Story order is approximate because sources disagree. Short films such as the I Am Groot shorts are left out. "What to watch first" and the watch paths are this guide's own suggestions.<span data-ticks> Your ticks are kept in this browser only.</span></p>
   <p>Headline type: Anton, by The Anton Project Authors, under the SIL Open Font License 1.1 (<a href="fonts/OFL.txt">licence</a>).</p>
-  <p>Also here: <a href="map.html">The map</a> · <a href="terms.html">Terms</a> · <a href="wallpapers.html">Wallpapers</a> · <a href="quiz.html">Quiz</a>.</p>
+  <p>Also here: <a href="map.html">The map</a> · <a href="terms.html">Terms</a> · <a href="wallpapers.html">Wallpapers</a> · <a href="quiz.html">Quiz</a> · <a href="animation.html">Animation</a>.</p>
+  <p class="made-by">Developed and maintained by <a href="https://letterboxd.com/palkova___/" target="_blank" rel="noopener noreferrer">palkova___</a> on Letterboxd.</p>
 </footer>
 
-<!-- The Sacred Timeline show (see sacredShow in app.js). Hidden until the switch in the bar starts it. -->
-<div id="sacred" hidden>
-  <canvas id="sacred-canvas" aria-hidden="true"></canvas>
-  <video id="sacred-video" playsinline controls preload="none" hidden></video>
-  <a class="cta" id="sacred-door" href="map.html" hidden>Enter the Sacred Timeline →</a>
-</div>
-
 <script src="data.js"></script>
+<script src="strands.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

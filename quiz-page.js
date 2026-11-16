@@ -1,8 +1,8 @@
-/* The Quiz page. The questions and the answers are in this file, and what a visitor answers is kept in
-   that visitor's own browser (localStorage "watchmap.quiz"). Nothing is sent anywhere. */
+/* The Quiz page. The questions and the answers are in this file. What a visitor answers is held only while
+   the page is open: nothing is stored and nothing is sent anywhere, so a refresh starts the quiz again. */
 (function (root) {
   "use strict";
-  var KEY = "watchmap.quiz";
+  var OLD_KEY = "watchmap.quiz"; /* the first version kept answers here; anything left is removed */
   /* kind "pick": choose one of `options`. kind "type": write the missing words; `accept` lists what counts.
      `full` is shown once the answer is right. */
   var QUESTIONS = [
@@ -32,11 +32,8 @@
   var doc = root.document;
   function $(id) { return doc.getElementById(id); }
   function el(tag, cls, text) { var n = doc.createElement(tag); if (cls) n.className = cls; if (text) n.textContent = text; return n; }
-  function load() {
-    try { var o = JSON.parse(root.localStorage.getItem(KEY) || "{}"); return o && typeof o === "object" && !Array.isArray(o) ? o : {}; } catch (e) { return {}; }
-  }
-  function save(answers) { try { root.localStorage.setItem(KEY, JSON.stringify(answers)); } catch (e) { /* kept for this visit only */ } }
-  var answers = load();
+  try { root.localStorage.removeItem(OLD_KEY); } catch (e) { /* nothing was stored */ }
+  var answers = {};
 
   function card(q, n) {
     var box = el("section", "q"), say = el("p", "q-say");
@@ -59,7 +56,7 @@
       row.setAttribute("role", "group"); row.setAttribute("aria-label", q.ask);
       q.options.forEach(function (o) {
         var b = el("button", "", o); b.type = "button";
-        b.addEventListener("click", function () { answers[q.id] = o; save(answers); paint(); settle(); });
+        b.addEventListener("click", function () { answers[q.id] = o; paint(); settle(); });
         row.appendChild(b);
       });
       var paint = function () {
@@ -76,7 +73,7 @@
       input.value = answers[q.id] || "";
       go.type = "submit";
       form.appendChild(input); form.appendChild(go);
-      form.addEventListener("submit", function (e) { e.preventDefault(); answers[q.id] = input.value; save(answers); settle(); });
+      form.addEventListener("submit", function (e) { e.preventDefault(); answers[q.id] = input.value; settle(); });
       box.appendChild(form);
       if (q.hint) {
         var ask = el("button", "ghost-link", "Show a hint"), hint = el("p", "q-hint", "Hint: " + q.hint);
@@ -98,6 +95,6 @@
     $("total").textContent = QUESTIONS.length;
     $("score").textContent = score(answers);
   }
-  $("again").addEventListener("click", function () { answers = {}; save(answers); draw(); root.scrollTo(0, 0); });
+  $("again").addEventListener("click", function () { answers = {}; draw(); root.scrollTo(0, 0); });
   draw();
 })(typeof window !== "undefined" ? window : globalThis);

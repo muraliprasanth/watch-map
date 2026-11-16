@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Animation · Watch Map</title>
+<meta name="description" content="An unofficial fan guide. Two short scenes that take over the whole window.">
+<meta name="theme-color" content="#0b0a0e">
+<link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preload" href="fonts/anton.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+<script src="config.js"></script>
+<script src="theme.js"></script>
+</head>
+<body data-page="animation">
+<header class="bar">
+  <a class="word" href="index.html" aria-label="Watch Map, back to the guide"><img class="logo" src="icon-180.png" width="34" height="34" alt=""><span class="word-a">WATCH</span><span class="word-b">MAP</span></a>
+  <a class="logo-clock-link" href="https://youtu.be/irVNGjRFZGk" target="_blank" rel="noopener noreferrer" title="Avengers: Doomsday, the official trailer, on YouTube" aria-label="Avengers: Doomsday, the official trailer, on YouTube"><svg class="logo-clock" viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><circle class="logo-clock-ring" cx="16" cy="16" r="13"/><path class="logo-clock-marks" d="M16 5v3M16 24v3M5 16h3M24 16h3"/><line class="logo-clock-hour" x1="16" y1="16" x2="16" y2="10"/><line class="logo-clock-minute" x1="16" y1="16" x2="16" y2="7"/><line class="logo-clock-second" x1="16" y1="18" x2="16" y2="6"/><circle class="logo-clock-pin" cx="16" cy="16" r="1.6"/></svg></a>
+  <nav aria-label="Pages">
+    <a href="index.html">The guide</a>
+    <a href="map.html">The map</a>
+    <a href="index.html#people">Characters</a>
+    <a href="terms.html">Terms</a>
+    <a href="wallpapers.html">Wallpapers</a>
+    <a href="quiz.html">Quiz</a>
+    <a href="animation.html" aria-current="page">Animation</a>
+  </nav>
+  <a class="tool back-link" href="index.html">Guide</a>
+  <button type="button" id="theme" class="tool">Dark</button>
+</header>
+
+<main id="top" class="block anim-page">
+  <div class="head">
+    <p class="num">PLAY</p>
+    <h1 class="terms-title">Animation</h1>
+    <p class="sub">Two short scenes. Each takes over the whole window. <strong>They give away plot points.</strong></p>
+  </div>
+  <div class="anim-boxes">
+    <button type="button" class="anim-box loki" id="play-loki"><span>Check where is Loki</span></button>
+    <button type="button" class="anim-box iron" id="play-iron"><span>I am Iron Man</span></button>
+  </div>
+  <noscript><p class="meta">This page needs JavaScript to play the scenes.</p></noscript>
+</main>
+
+<footer class="foot">
+  <p><strong>Unofficial.</strong> This is a fan-made guide. It is not affiliated with, endorsed by or sponsored by Marvel or The Walt Disney Company. Names belong to their owners and are used here only to describe the works.</p>
+  <p>The scenes are this guide's own drawings. "Check where is Loki" ends with a short edit played by YouTube from the palkova channel; pressing that box loads YouTube's player. <a href="index.html">Back to the guide</a> · <a href="map.html">The map</a> · <a href="terms.html">Terms</a> · <a href="wallpapers.html">Wallpapers</a> · <a href="quiz.html">Quiz</a>.</p>
+  <p class="made-by">Developed and maintained by <a href="https://letterboxd.com/palkova___/" target="_blank" rel="noopener noreferrer">palkova___</a> on Letterboxd.</p>
+</footer>
+
+<!-- The stage: it covers the window while a scene plays (animation-page.js). -->
+<div id="stage" hidden>
+  <canvas id="stage-canvas" aria-hidden="true"></canvas>
+  <video id="stage-video" playsinline controls preload="none" hidden></video>
+  <iframe id="stage-frame" title="Video, played by YouTube" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin" hidden></iframe>
+  <div class="stage-tools">
+    <a class="stage-pill" id="stage-watch" href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer" hidden>Watch the edit on YouTube ↗</a>
+    <a class="stage-pill" id="stage-door" href="map.html#sacred" hidden>Enter the Sacred Timeline →</a>
+    <button type="button" class="stage-pill" id="stage-reverse" hidden>Reverse the snap</button>
+    <button type="button" class="stage-pill" id="stage-snap" hidden>Snap</button>
+    <button type="button" class="stage-pill quiet" id="stage-back" hidden>Back</button>
+    <a class="stage-pill quiet" id="stage-home" href="index.html" hidden>Back to home</a>
+  </div>
+</div>
+
+<script src="strands.js"></script>
+<script src="animation-page.js"></script>
+</body>
+</html>
