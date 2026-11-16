@@ -330,49 +330,76 @@
     });
   }
 
-  /* ----- the green theme on the map page: glowing strands behind the timeline (this guide's own drawing) ----- */
+  /* ----- the green theme on the map page: glowing strands behind the timeline (this guide's own drawing) -----
+     Kept cheap so the timeline scrolls smoothly over it: the canvas is drawn at screen pixels at most (the
+     glow is soft anyway), the glow is two wide faint strokes under each line instead of a blur, it runs
+     at about 30 frames a second, and it holds still while the timeline is being scrolled or dragged. */
   var strand = null;
   function strands(on) {
     var c = $("strands"), ctx = c && c.getContext && c.getContext("2d");
     if (!ctx) return;
     if (!strand) {
-      strand = { lines: [], w: 0, h: 0, raf: 0, running: false, t: 0 };
+      strand = { lines: [], w: 0, h: 0, raf: 0, running: false, t: 0, last: 0, hold: 0 };
       strand.size = function () {
-        var d = Math.min(2, root.devicePixelRatio || 1);
+        var d = Math.min(1, root.devicePixelRatio || 1);
         strand.w = root.innerWidth; strand.h = root.innerHeight;
-        c.width = strand.w * d; c.height = strand.h * d; ctx.setTransform(d, 0, 0, d, 0, 0);
+        c.width = Math.round(strand.w * d); c.height = Math.round(strand.h * d); ctx.setTransform(d, 0, 0, d, 0, 0);
         var n = Math.round(Math.min(64, Math.max(28, strand.w / 22)));
         strand.lines = [];
         for (var i = 0; i < n; i++) {
           strand.lines.push({ off: (i + 0.5) / n - 0.5, amp: 18 + Math.random() * 46, len: 320 + Math.random() * 520, ph: Math.random() * 6.283,
-            sp: 0.15 + Math.random() * 0.35, wd: 0.7 + Math.random() * 2.1, hue: 128 + Math.random() * 30, lt: 38 + Math.random() * 34, al: 0.16 + Math.random() * 0.4 });
+            sp: 0.15 + Math.random() * 0.35, wd: 0.7 + Math.random() * 2.1, hue: Math.round(128 + Math.random() * 30), lt: Math.round(38 + Math.random() * 34), al: 0.16 + Math.random() * 0.4 });
         }
       };
-      strand.frame = function () {
+      strand.draw = function () {
         var s = strand, cy = s.h * 0.52, soft = doc.documentElement.style.getPropertyValue("--green-still") ? 0.45 : 1;
+        var step = Math.max(22, s.w / 70);
         ctx.clearRect(0, 0, s.w, s.h);
         ctx.globalCompositeOperation = "lighter";
+        ctx.lineJoin = "round";
         for (var i = 0; i < s.lines.length; i++) {
-          var l = s.lines[i];
+          var l = s.lines[i], first = true;
           ctx.beginPath();
-          for (var x = -20; x <= s.w + 20; x += 18) {
+          for (var x = -step; x <= s.w + step; x += step) {
             /* the bundle is tight in the middle of the window and fans out to both sides, like branches */
             var fan = 0.18 + 0.82 * Math.pow(Math.abs(x / s.w - 0.5) * 2, 1.35);
             var y = cy + l.off * s.h * 1.25 * fan + Math.sin(x / l.len * 6.283 + l.ph + s.t * l.sp) * l.amp * (0.35 + fan);
-            if (x === -20) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            if (first) { ctx.moveTo(x, y); first = false; } else ctx.lineTo(x, y);
           }
-          ctx.strokeStyle = "hsla(" + l.hue.toFixed(0) + ",85%," + l.lt.toFixed(0) + "%," + (l.al * soft).toFixed(3) + ")";
-          ctx.lineWidth = l.wd; ctx.shadowColor = "hsla(" + l.hue.toFixed(0) + ",95%,55%,0.9)"; ctx.shadowBlur = 10;
-          ctx.stroke();
+          var a = l.al * soft, glow = "hsla(" + l.hue + ",95%,55%,";
+          ctx.strokeStyle = glow + (a * 0.1).toFixed(3) + ")"; ctx.lineWidth = l.wd * 9; ctx.stroke();
+          ctx.strokeStyle = glow + (a * 0.22).toFixed(3) + ")"; ctx.lineWidth = l.wd * 4; ctx.stroke();
+          ctx.strokeStyle = "hsla(" + l.hue + ",85%," + l.lt + "%," + a.toFixed(3) + ")"; ctx.lineWidth = l.wd; ctx.stroke();
         }
-        ctx.globalCompositeOperation = "source-over"; ctx.shadowBlur = 0;
-        s.t += 0.016;
-        if (s.running && !calm) s.raf = root.requestAnimationFrame(s.frame);
+        ctx.globalCompositeOperation = "source-over";
       };
-      root.addEventListener("resize", function () { if (strand.running) { strand.size(); if (calm) strand.frame(); } });
+      strand.frame = function (now) {
+        var s = strand;
+        if (!s.running) return;
+        s.raf = root.requestAnimationFrame(s.frame);
+        if (now < s.hold || now - s.last < 32) return; /* scrolling, or too soon for the next frame */
+        s.t += Math.min(0.1, (now - s.last) / 1000);
+        s.last = now;
+        s.draw();
+      };
+      root.addEventListener("resize", function () { if (strand.running) { strand.size(); strand.draw(); } });
+      $("map-scroll").addEventListener("scroll", function () { strand.hold = root.performance.now() + 140; }, { passive: true });
     }
-    if (on && !strand.running) { strand.running = true; strand.size(); strand.frame(); }
-    else if (!on && strand.running) { strand.running = false; root.cancelAnimationFrame(strand.raf); ctx.clearRect(0, 0, strand.w, strand.h); }
+    if (on && !strand.running) {
+      strand.running = true; strand.size(); strand.draw();
+      if (!calm) strand.raf = root.requestAnimationFrame(strand.frame);
+    } else if (!on && strand.running) { strand.running = false; root.cancelAnimationFrame(strand.raf); ctx.clearRect(0, 0, strand.w, strand.h); }
+  }
+
+  /* On the map page the wheel of a mouse moves the timeline sideways (it has nowhere to go up or down). */
+  function wheelSideways(sc) {
+    sc.addEventListener("wheel", function (e) {
+      if (e.ctrlKey || e.metaKey || Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return;       /* zooming, or already sideways */
+      var page = doc.documentElement;
+      if (page.scrollHeight > root.innerHeight + 2 && page.getAttribute("data-theme") !== "green") return; /* the page itself still scrolls */
+      sc.scrollLeft += e.deltaY * (e.deltaMode === 1 ? 32 : 1);
+      e.preventDefault();
+    }, { passive: false });
   }
 
   /* ----- groups: watch paths and characters ----- */
@@ -494,6 +521,7 @@
       b.addEventListener("click", function () { var k = b.getAttribute("data-kind"); state.kinds[k] = !state.kinds[k]; b.setAttribute("aria-pressed", state.kinds[k] ? "true" : "false"); paint(); });
     });
     dragToPan($("map-scroll"));
+    if (ON_MAP) wheelSideways($("map-scroll"));
 
     G.paths.forEach(function (pth) {
       var c = el("button", { type: "button", "class": "card reveal", "aria-pressed": "false" });

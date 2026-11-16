@@ -16,7 +16,7 @@
   --ray: rgba(240, 170, 20, 0.26); --tone: rgba(27, 24, 32, 0.15); --red-btn: #c8262b;
   --h1-drop: #ffcf33; --em-drop: #1b1820; --word-drop: #ffcf33; --drop-s: 35%; --drop-l: 13%;
 }
-/* the green theme: the same page in the greens of a glowing timeline */
+/* the green theme (offered on the map page only): the greens of a glowing timeline */
 :root[data-theme="green"] {
   --bg: #020d08; --bg2: #051a10; --panel: #082214; --ink: #eaf6e4; --muted: #94b89d; --line: #17402a;
   --red: #2fd27a; --red-deep: #0d5a31; --gold: #e3d26f; --shadow: rgba(0, 0, 0, 0.6); --dot: rgba(64, 220, 130, 0.07);
@@ -346,14 +346,15 @@ a.tool { text-decoration: none; }
 :root[data-theme="green"] body[data-page="map"] #map { height: 100vh; height: 100dvh; padding: 0; }
 :root[data-theme="green"] body[data-page="map"] #map > :not(.map-scroll):not(#strands):not(.green-quote) { display: none; }
 :root[data-theme="green"] body[data-page="map"] #strands { display: block; position: fixed; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; }
-:root[data-theme="green"] body[data-page="map"] .map-scroll { position: relative; z-index: 1; border: 0; border-radius: 0; box-shadow: none; background: none; scrollbar-color: #1f6b3f transparent; }
+:root[data-theme="green"] body[data-page="map"] .map-scroll { position: relative; z-index: 1; overscroll-behavior: contain; border: 0; border-radius: 0; box-shadow: none; background: none; scrollbar-color: #1f6b3f transparent; }
 :root[data-theme="green"] body[data-page="map"] .green-quote { display: block; position: fixed; left: 50%; bottom: 20px; z-index: 2; transform: translateX(-50%); margin: 0; width: min(92vw, 780px); text-align: center; pointer-events: none;
   font-size: clamp(0.95rem, 2vw, 1.3rem); font-style: italic; color: #e2fbe0; text-shadow: 0 0 14px rgba(47, 210, 122, 0.85), 0 2px 6px #000; }
 .green-quote small { display: block; margin-top: 5px; font-style: normal; font-size: 0.68em; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: #8fd9a8; }
 :root[data-theme="green"] body[data-page="map"] .band { fill: transparent; }
 :root[data-theme="green"] body[data-page="map"] .band.alt { fill: rgba(47, 210, 122, 0.05); }
-:root[data-theme="green"] body[data-page="map"] #graph > g:first-of-type { filter: drop-shadow(0 0 4px rgba(64, 230, 140, 0.75)); }
-:root[data-theme="green"] body[data-page="map"] .edge { stroke: #7df7b0; stroke-width: 1.3; opacity: 0.38; }
+/* no glow filter on the lines of the timeline: a filter over a drawing this wide makes scrolling stutter */
+:root[data-theme="green"] body[data-page="map"] .edge { stroke: #8dffbf; stroke-width: 1.4; opacity: 0.46; transition: none; }
+:root[data-theme="green"] body[data-page="map"] .node { transition: none; }
 :root[data-theme="green"] body[data-page="map"] .edge.on { stroke: #f1ffd0; stroke-width: 3; opacity: 1; }
 
 /* Quiz page: one card per question */
