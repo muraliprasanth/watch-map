@@ -1,41 +1,72 @@
-/* The theme switch, shared by every page: dark, light, green, and round again. The button with the id
-   "theme" is the switch and shows the theme the page is in.
-   Dark and light recolour the page. Green is one view, not a recolouring: only the timeline, on moving
-   green strands, and it lives on the map page (its <html> carries data-green). Choosing green anywhere
-   else opens the map page in green; a page that is not the map shows a saved "green" as dark.
-   The choice is kept in this browser. Load this in the <head> so it applies before the page is drawn. */
+/* The switch in the top bar, shared by every page. The button with the id "theme" shows the setting the
+   page is in.
+   - Most pages: Dark and Light.
+   - The guide page (<html data-home>): Dark, then the Sacred Timeline, then Light. The Sacred Timeline is
+     a show, not a colour theme: the page clears and app.js plays it. It is never saved; Escape leaves it.
+   - The map page (<html data-map>): no theme at all. It has two views, Default and Sacred Timeline,
+     chosen with the two buttons inside the element with the id "view", and remembered on their own.
+   Choices are kept in this browser. Load this in the <head> so they apply before the page is drawn. */
 (function (root) {
   "use strict";
-  var ORDER = ["dark", "light", "green"], LABEL = { dark: "Dark", light: "Light", green: "Green" }, KEY = "watchmap.theme";
-  function next(theme) { return ORDER[(ORDER.indexOf(theme) + 1) % ORDER.length]; }
-  /* what a page shows for a saved choice: green only where the page has the green view */
-  function shown(saved, hasGreen) {
-    if (ORDER.indexOf(saved) === -1) return "dark";
-    return saved === "green" && !hasGreen ? "dark" : saved;
+  var LABEL = { dark: "Dark", light: "Light", sacred: "Sacred Timeline" }, THEME = "watchmap.theme", VIEW = "watchmap.view";
+  /* the next setting after `now`; the guide page has the show between dark and light */
+  function next(now, home) {
+    if (now === "dark") return home ? "sacred" : "light";
+    if (now === "sacred") return "light";
+    return "dark";
   }
-  var api = { ORDER: ORDER, next: next, shown: shown };
+  /* a saved theme is dark or light; anything else (older versions saved "green") counts as dark */
+  function theme(saved) { return saved === "light" ? "light" : "dark"; }
+  /* the map page's two views */
+  function view(saved) { return saved === "sacred" ? "sacred" : "default"; }
+  var api = { next: next, theme: theme, view: view, LABEL: LABEL };
   if (typeof module !== "undefined" && module.exports) { module.exports = api; return; }
 
-  var doc = root.document, html = doc.documentElement, GREEN = html.hasAttribute("data-green");
-  function saved() { try { return root.localStorage.getItem(KEY); } catch (e) { return null; } }
-  function keep(theme) { try { root.localStorage.setItem(KEY, theme); } catch (e) { /* not stored: it lasts for this visit */ } }
-  function current() { return shown(html.getAttribute("data-theme"), GREEN); }
-  function apply(theme) {
-    html.setAttribute("data-theme", theme);
-    var b = doc.getElementById("theme");
-    if (b) { b.textContent = LABEL[theme]; b.setAttribute("title", "Theme: " + LABEL[theme] + ". Press for " + LABEL[next(theme)] + "."); }
-    doc.dispatchEvent(new root.CustomEvent("themechange", { detail: theme }));
+  var doc = root.document, html = doc.documentElement, HOME = html.hasAttribute("data-home"), MAP = html.hasAttribute("data-map");
+  function read(key) { try { return root.localStorage.getItem(key); } catch (e) { return null; } }
+  function keep(key, value) { try { root.localStorage.setItem(key, value); } catch (e) { /* not stored: it lasts for this visit */ } }
+  function tell(name, detail) { doc.dispatchEvent(new root.CustomEvent(name, { detail: detail })); }
+
+  if (MAP) {
+    /* the sacred view is drawn by the stylesheet under data-theme="green"; the default view is the dark page */
+    var showView = function (v) {
+      html.setAttribute("data-theme", v === "sacred" ? "green" : "dark");
+      Array.prototype.forEach.call(doc.querySelectorAll("#view button"), function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-view") === v ? "true" : "false"); });
+      tell("themechange", v === "sacred" ? "green" : "dark");
+    };
+    html.setAttribute("data-theme", view(read(VIEW)) === "sacred" ? "green" : "dark");
+    var bindView = function () {
+      showView(view(read(VIEW)));
+      Array.prototype.forEach.call(doc.querySelectorAll("#view button"), function (b) {
+        b.addEventListener("click", function () { var v = view(b.getAttribute("data-view")); keep(VIEW, v); showView(v); });
+      });
+    };
+    if (doc.readyState === "loading") doc.addEventListener("DOMContentLoaded", bindView); else bindView();
+    root.WatchTheme = api;
+    return;
   }
-  html.setAttribute("data-theme", shown(saved(), GREEN));
-  function bind() {
-    apply(current());
+
+  var now = theme(read(THEME));
+  html.setAttribute("data-theme", now);
+  function label() {
     var b = doc.getElementById("theme");
-    if (b) b.addEventListener("click", function () {
-      var t = next(current());
-      keep(t);
-      if (t === "green" && !GREEN) { root.location.href = "map.html"; return; } /* the green view is on the map page */
-      apply(t);
-    });
+    if (b) { b.textContent = LABEL[now]; b.setAttribute("title", LABEL[now] + ". Press for " + LABEL[next(now, HOME)] + "."); }
+  }
+  function set(to) {
+    var was = now;
+    now = to;
+    if (to === "sacred") tell("sacredshow", true);
+    else {
+      if (was === "sacred") tell("sacredshow", false);
+      html.setAttribute("data-theme", to); keep(THEME, to); tell("themechange", to);
+    }
+    label();
+  }
+  function bind() {
+    label();
+    var b = doc.getElementById("theme");
+    if (b) b.addEventListener("click", function () { set(next(now, HOME)); });
+    doc.addEventListener("keydown", function (e) { if (e.key === "Escape" && now === "sacred") set("dark"); });
   }
   if (doc.readyState === "loading") doc.addEventListener("DOMContentLoaded", bind); else bind();
   root.WatchTheme = api;

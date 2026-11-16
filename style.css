@@ -16,7 +16,7 @@
   --ray: rgba(240, 170, 20, 0.26); --tone: rgba(27, 24, 32, 0.15); --red-btn: #c8262b;
   --h1-drop: #ffcf33; --em-drop: #1b1820; --word-drop: #ffcf33; --drop-s: 35%; --drop-l: 13%;
 }
-/* the green theme (offered on the map page only): the greens of a glowing timeline */
+/* the colours of the map page's Sacred Timeline view (theme.js sets data-theme="green" for it) */
 :root[data-theme="green"] {
   --bg: #020d08; --bg2: #051a10; --panel: #082214; --ink: #eaf6e4; --muted: #94b89d; --line: #17402a;
   --red: #2fd27a; --red-deep: #0d5a31; --gold: #e3d26f; --shadow: rgba(0, 0, 0, 0.6); --dot: rgba(64, 220, 130, 0.07);
@@ -315,7 +315,15 @@ a.tool { text-decoration: none; }
    map is hidden and the map takes the height of the window. On the guide itself the map stays hidden. */
 [data-page="guide"] #map { display: none; }
 .door { display: inline-block; text-decoration: none; font-size: 1.1rem; }
-#strands, .green-quote { display: none; }
+#strands { display: none; }
+/* the map page has two views instead of a theme: this is their switch, in the bar */
+.view-switch { display: inline-flex; flex: none; overflow: hidden; border: 2px solid var(--outline); border-radius: 999px; background: var(--panel); box-shadow: 2px 2px 0 var(--drop); }
+.view-switch button { border: 0; background: none; padding: 5px 14px; font-size: 0.78rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+.view-switch button + button { border-left: 2px solid var(--outline); }
+.view-switch button[aria-pressed="true"] { background: var(--pop); color: var(--pop-ink); }
+[data-page="map"] .back-link { display: none; }
+@media (max-width: 860px) { .view-switch { margin-left: auto; } }
+@media (max-width: 520px) { [data-page="map"] .word-a, [data-page="map"] .word-b { display: none; } .view-switch button { padding: 5px 10px; font-size: 0.72rem; } }
 .map-unofficial { margin: 6px 0 0; font-size: 0.78rem; color: var(--muted); }
 [data-page="map"] main > :not(#map), [data-page="map"] .foot { display: none; }
 [data-page="map"] #map { display: flex; flex-direction: column; max-width: none; margin: 0; padding: 14px 18px 10px; height: calc(100vh - var(--bar-h)); height: calc(100dvh - var(--bar-h)); min-height: 500px; }
@@ -336,26 +344,38 @@ a.tool { text-decoration: none; }
 [data-page="map"] .legend { margin-bottom: 0; }
 [data-page="map"] .caption { margin-top: 10px; padding: 8px 12px; }
 
-/* Green on the map page: nothing but the timeline, on moving green strands (drawn by app.js). A copy of the
-   site that sets a picture in config.js (greenImage) shows it behind the strands. */
+/* The Sacred Timeline view of the map page: nothing but the timeline and the switch, on moving green strands
+   (drawn by app.js). A copy of the site that names a picture in config.js (sacred.still) shows it behind them. */
 :root[data-theme="green"] body[data-page="map"] { overflow: hidden; background-color: #020d08;
   background-image: linear-gradient(rgba(2, 13, 8, 0.45), rgba(2, 13, 8, 0.7)), var(--green-still, none); background-size: cover; background-position: center; background-attachment: fixed; }
 :root[data-theme="green"] body[data-page="map"] .bar { position: fixed; left: 0; right: 0; background: none; border: 0; box-shadow: none; pointer-events: none; }
-:root[data-theme="green"] body[data-page="map"] .bar > :not(#theme) { display: none; }
-:root[data-theme="green"] body[data-page="map"] #theme { margin-left: auto; pointer-events: auto; }
+:root[data-theme="green"] body[data-page="map"] .bar > :not(#view) { display: none; }
+:root[data-theme="green"] body[data-page="map"] #view { margin-left: auto; pointer-events: auto; }
 :root[data-theme="green"] body[data-page="map"] #map { height: 100vh; height: 100dvh; padding: 0; }
-:root[data-theme="green"] body[data-page="map"] #map > :not(.map-scroll):not(#strands):not(.green-quote) { display: none; }
+:root[data-theme="green"] body[data-page="map"] #map > :not(.map-scroll):not(#strands) { display: none; }
 :root[data-theme="green"] body[data-page="map"] #strands { display: block; position: fixed; inset: 0; z-index: 0; width: 100%; height: 100%; pointer-events: none; }
 :root[data-theme="green"] body[data-page="map"] .map-scroll { position: relative; z-index: 1; overscroll-behavior: contain; border: 0; border-radius: 0; box-shadow: none; background: none; scrollbar-color: #1f6b3f transparent; }
-:root[data-theme="green"] body[data-page="map"] .green-quote { display: block; position: fixed; left: 50%; bottom: 20px; z-index: 2; transform: translateX(-50%); margin: 0; width: min(92vw, 780px); text-align: center; pointer-events: none;
-  font-size: clamp(0.95rem, 2vw, 1.3rem); font-style: italic; color: #e2fbe0; text-shadow: 0 0 14px rgba(47, 210, 122, 0.85), 0 2px 6px #000; }
-.green-quote small { display: block; margin-top: 5px; font-style: normal; font-size: 0.68em; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; color: #8fd9a8; }
 :root[data-theme="green"] body[data-page="map"] .band { fill: transparent; }
 :root[data-theme="green"] body[data-page="map"] .band.alt { fill: rgba(47, 210, 122, 0.05); }
 /* no glow filter on the lines of the timeline: a filter over a drawing this wide makes scrolling stutter */
 :root[data-theme="green"] body[data-page="map"] .edge { stroke: #8dffbf; stroke-width: 1.4; opacity: 0.46; transition: none; }
 :root[data-theme="green"] body[data-page="map"] .node { transition: none; }
 :root[data-theme="green"] body[data-page="map"] .edge.on { stroke: #f1ffd0; stroke-width: 3; opacity: 1; }
+
+/* The Sacred Timeline show on the guide page (sacredShow in app.js): the page clears, the canvas fills the
+   window, and a copy that has a video shows it in a 1.90:1 frame, as wide as the window allows. */
+#sacred { position: fixed; inset: 0; z-index: 40; display: grid; place-items: center; background: #020d08; }
+#sacred[hidden], #sacred-video[hidden], #sacred-door[hidden] { display: none; }
+#sacred-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+#sacred-video { position: relative; width: min(100vw, calc(100vh * 1.9)); width: min(100vw, calc(100dvh * 1.9)); aspect-ratio: 1.9 / 1; object-fit: cover; background: #000; box-shadow: 0 0 70px rgba(47, 210, 122, 0.4); animation: sacred-in 1.4s ease both; }
+#sacred-door { position: absolute; left: 50%; bottom: 8vh; z-index: 2; transform: translateX(-50%); text-decoration: none; white-space: nowrap; background: #0f7a43; border-color: #cfe9c8; box-shadow: 4px 4px 0 #cfe9c8; animation: sacred-in 1.2s ease both; }
+#sacred-door:hover { transform: translate(calc(-50% - 2px), -2px); box-shadow: 6px 6px 0 #cfe9c8; }
+@keyframes sacred-in { from { opacity: 0; } to { opacity: 1; } }
+body.sacred-on { overflow: hidden; }
+body.sacred-on main, body.sacred-on .foot { visibility: hidden; }
+body.sacred-on .bar { position: fixed; left: 0; right: 0; z-index: 50; background: none; border: 0; box-shadow: none; pointer-events: none; }
+body.sacred-on .bar > :not(#theme) { display: none; }
+body.sacred-on #theme { margin-left: auto; pointer-events: auto; background: #082214; color: #eaf6e4; border-color: #cfe9c8; box-shadow: 2px 2px 0 #0d5a31; }
 
 /* Quiz page: one card per question */
 .quiz-page { padding-top: 44px; max-width: 820px; }

@@ -330,65 +330,151 @@
     });
   }
 
-  /* ----- the green theme on the map page: glowing strands behind the timeline (this guide's own drawing) -----
-     Kept cheap so the timeline scrolls smoothly over it: the canvas is drawn at screen pixels at most (the
-     glow is soft anyway), the glow is two wide faint strokes under each line instead of a blur, it runs
-     at about 30 frames a second, and it holds still while the timeline is being scrolled or dragged. */
-  var strand = null;
-  function strands(on) {
-    var c = $("strands"), ctx = c && c.getContext && c.getContext("2d");
-    if (!ctx) return;
-    if (!strand) {
-      strand = { lines: [], w: 0, h: 0, raf: 0, running: false, t: 0, last: 0, hold: 0 };
-      strand.size = function () {
-        var d = Math.min(1, root.devicePixelRatio || 1);
-        strand.w = root.innerWidth; strand.h = root.innerHeight;
-        c.width = Math.round(strand.w * d); c.height = Math.round(strand.h * d); ctx.setTransform(d, 0, 0, d, 0, 0);
-        var n = Math.round(Math.min(64, Math.max(28, strand.w / 22)));
-        strand.lines = [];
-        for (var i = 0; i < n; i++) {
-          strand.lines.push({ off: (i + 0.5) / n - 0.5, amp: 18 + Math.random() * 46, len: 320 + Math.random() * 520, ph: Math.random() * 6.283,
-            sp: 0.15 + Math.random() * 0.35, wd: 0.7 + Math.random() * 2.1, hue: Math.round(128 + Math.random() * 30), lt: Math.round(38 + Math.random() * 34), al: 0.16 + Math.random() * 0.4 });
+  /* ----- the Sacred Timeline: glowing green strands (this guide's own drawing) -----
+     Kept cheap so a page stays smooth over it: the canvas is drawn at screen pixels at most (the glow is soft
+     anyway), the glow is two wide faint strokes under each line instead of a blur, and it runs at about 30
+     frames a second. */
+  function clamp(v) { return v < 0 ? 0 : v > 1 ? 1 : v; }
+  function makeStrands(c) {
+    var ctx = c && c.getContext && c.getContext("2d");
+    if (!ctx) return null;
+    var s = { ctx: ctx, lines: [], w: 0, h: 0, t: 0 };
+    s.size = function () {
+      var d = Math.min(1, root.devicePixelRatio || 1);
+      s.w = root.innerWidth; s.h = root.innerHeight;
+      c.width = Math.round(s.w * d); c.height = Math.round(s.h * d); ctx.setTransform(d, 0, 0, d, 0, 0);
+      var n = Math.round(Math.min(64, Math.max(28, s.w / 22)));
+      s.lines = [];
+      for (var i = 0; i < n; i++) {
+        s.lines.push({ off: (i + 0.5) / n - 0.5, amp: 18 + Math.random() * 46, len: 320 + Math.random() * 520, ph: Math.random() * 6.283,
+          sp: 0.15 + Math.random() * 0.35, wd: 0.7 + Math.random() * 2.1, hue: Math.round(128 + Math.random() * 30), lt: Math.round(38 + Math.random() * 34), al: 0.16 + Math.random() * 0.4 });
+      }
+    };
+    /* gain: how bright, 0 to 1. open: how far the bundle has opened, from one thread (0) to the whole timeline (1). */
+    s.draw = function (gain, open) {
+      var cy = s.h * 0.52, step = Math.max(22, s.w / 70);
+      ctx.clearRect(0, 0, s.w, s.h);
+      if (gain <= 0) return;
+      ctx.globalCompositeOperation = "lighter";
+      ctx.lineJoin = "round";
+      for (var i = 0; i < s.lines.length; i++) {
+        var l = s.lines[i], first = true;
+        ctx.beginPath();
+        for (var x = -step; x <= s.w + step; x += step) {
+          /* the bundle is tight in the middle of the window and fans out to both sides, like branches */
+          var fan = 0.18 + 0.82 * Math.pow(Math.abs(x / s.w - 0.5) * 2, 1.35);
+          var y = cy + l.off * s.h * 1.25 * fan * open + Math.sin(x / l.len * 6.283 + l.ph + s.t * l.sp) * l.amp * (0.35 + fan) * (0.2 + 0.8 * open);
+          if (first) { ctx.moveTo(x, y); first = false; } else ctx.lineTo(x, y);
         }
-      };
-      strand.draw = function () {
-        var s = strand, cy = s.h * 0.52, soft = doc.documentElement.style.getPropertyValue("--green-still") ? 0.45 : 1;
-        var step = Math.max(22, s.w / 70);
-        ctx.clearRect(0, 0, s.w, s.h);
-        ctx.globalCompositeOperation = "lighter";
-        ctx.lineJoin = "round";
-        for (var i = 0; i < s.lines.length; i++) {
-          var l = s.lines[i], first = true;
-          ctx.beginPath();
-          for (var x = -step; x <= s.w + step; x += step) {
-            /* the bundle is tight in the middle of the window and fans out to both sides, like branches */
-            var fan = 0.18 + 0.82 * Math.pow(Math.abs(x / s.w - 0.5) * 2, 1.35);
-            var y = cy + l.off * s.h * 1.25 * fan + Math.sin(x / l.len * 6.283 + l.ph + s.t * l.sp) * l.amp * (0.35 + fan);
-            if (first) { ctx.moveTo(x, y); first = false; } else ctx.lineTo(x, y);
-          }
-          var a = l.al * soft, glow = "hsla(" + l.hue + ",95%,55%,";
-          ctx.strokeStyle = glow + (a * 0.1).toFixed(3) + ")"; ctx.lineWidth = l.wd * 9; ctx.stroke();
-          ctx.strokeStyle = glow + (a * 0.22).toFixed(3) + ")"; ctx.lineWidth = l.wd * 4; ctx.stroke();
-          ctx.strokeStyle = "hsla(" + l.hue + ",85%," + l.lt + "%," + a.toFixed(3) + ")"; ctx.lineWidth = l.wd; ctx.stroke();
-        }
-        ctx.globalCompositeOperation = "source-over";
-      };
-      strand.frame = function (now) {
-        var s = strand;
-        if (!s.running) return;
-        s.raf = root.requestAnimationFrame(s.frame);
-        if (now < s.hold || now - s.last < 32) return; /* scrolling, or too soon for the next frame */
-        s.t += Math.min(0.1, (now - s.last) / 1000);
-        s.last = now;
-        s.draw();
-      };
-      root.addEventListener("resize", function () { if (strand.running) { strand.size(); strand.draw(); } });
-      $("map-scroll").addEventListener("scroll", function () { strand.hold = root.performance.now() + 140; }, { passive: true });
+        var a = l.al * gain, glow = "hsla(" + l.hue + ",95%,55%,";
+        ctx.strokeStyle = glow + (a * 0.1).toFixed(3) + ")"; ctx.lineWidth = l.wd * 9; ctx.stroke();
+        ctx.strokeStyle = glow + (a * 0.22).toFixed(3) + ")"; ctx.lineWidth = l.wd * 4; ctx.stroke();
+        ctx.strokeStyle = "hsla(" + l.hue + ",85%," + l.lt + "%," + a.toFixed(3) + ")"; ctx.lineWidth = l.wd; ctx.stroke();
+      }
+      ctx.globalCompositeOperation = "source-over";
+    };
+    return s;
+  }
+  /* Call step(now, seconds since the last call) about 30 times a second while started. */
+  function ticker(step) {
+    var raf = 0, last = 0, on = false;
+    function frame(now) {
+      if (!on) return;
+      raf = root.requestAnimationFrame(frame);
+      if (now - last < 32) return;
+      var dt = Math.min(0.1, (now - last) / 1000); last = now; step(now, dt);
     }
-    if (on && !strand.running) {
-      strand.running = true; strand.size(); strand.draw();
-      if (!calm) strand.raf = root.requestAnimationFrame(strand.frame);
-    } else if (!on && strand.running) { strand.running = false; root.cancelAnimationFrame(strand.raf); ctx.clearRect(0, 0, strand.w, strand.h); }
+    return { start: function () { if (on) return; on = true; last = root.performance.now(); raf = root.requestAnimationFrame(frame); },
+      stop: function () { on = false; root.cancelAnimationFrame(raf); } };
+  }
+  function still() { return (root.WATCHMAP && root.WATCHMAP.sacred && root.WATCHMAP.sacred.still) || ""; }
+
+  /* On the map page, in the Sacred Timeline view: the strands move behind the timeline, and hold still while
+     it is being scrolled or dragged. A copy of the site that names a picture shows it behind them, dimmed. */
+  var mapStrands = null, mapTick = null, mapHold = 0, mapOn = false;
+  function strands(on) {
+    if (!mapStrands) {
+      mapStrands = makeStrands($("strands"));
+      if (!mapStrands) return;
+      mapTick = ticker(function (now, dt) { if (now < mapHold) return; mapStrands.t += dt; mapStrands.draw(still() ? 0.45 : 1, 1); });
+      root.addEventListener("resize", function () { if (mapOn) { mapStrands.size(); mapStrands.draw(still() ? 0.45 : 1, 1); } });
+      $("map-scroll").addEventListener("scroll", function () { mapHold = root.performance.now() + 140; }, { passive: true });
+    }
+    mapOn = on;
+    if (on) { mapStrands.size(); mapStrands.draw(still() ? 0.45 : 1, 1); if (!calm) mapTick.start(); }
+    else { mapTick.stop(); mapStrands.ctx.clearRect(0, 0, mapStrands.w, mapStrands.h); }
+  }
+
+  /* On the guide page, the Sacred Timeline is a show (theme.js starts and ends it). The page clears. One
+     thread appears and opens into the whole timeline. A copy of the site that names a picture (config.js:
+     sacred.still) begins with the picture, which comes apart into threads; one that names a video
+     (sacred.video) then plays it, with its sound, in a 1.90:1 frame. A copy that names neither ends on the
+     threads and a way in to the map. Someone who asked their device for less motion gets the end state. */
+  var show = null;
+  function sacredShow(on) {
+    var box = $("sacred"), video = $("sacred-video"), door = $("sacred-door");
+    var cfg = (root.WATCHMAP && root.WATCHMAP.sacred) || {};
+    if (!show) {
+      show = { s: makeStrands($("sacred-canvas")), t0: 0, img: null, strips: [], done: false, tick: null };
+      if (!show.s) return;
+      var paint = function (t) {
+        var s = show.s, ctx = s.ctx, hold = show.img ? 1.6 : 0, split = 3.2;
+        var p = clamp((t - hold) / split), ease = p * p * (3 - 2 * p);
+        s.draw(show.img ? ease : Math.min(1, 0.3 + ease), 0.04 + 0.96 * ease);
+        if (show.img && p < 1) {
+          /* the picture, cut into upright strips: each thins to a thread, drifts aside and fades, the edges first */
+          var im = show.img, k = Math.max(s.w / im.width, s.h / im.height), dw = im.width * k, dh = im.height * k, dx = (s.w - dw) / 2, dy = (s.h - dh) / 2;
+          var n = show.strips.length, fadeIn = clamp(t / 0.9);
+          for (var i = 0; i < n; i++) {
+            var st = show.strips[i], q = clamp((p - st.delay) / 0.42), e = q * q;
+            if (e >= 1) continue;
+            var bw = dw / n, w = bw * (1 - 0.92 * e), x = dx + i * bw + (bw - w) / 2 + st.dir * e * s.w * 0.16 + Math.sin(t * 2.1 + i) * e * 9;
+            ctx.globalAlpha = fadeIn * (1 - e);
+            ctx.drawImage(im, i * im.width / n, 0, im.width / n, im.height, x, dy - e * dh * 0.2, w + 0.6, dh * (1 + 0.4 * e));
+            if (e > 0.02) {
+              ctx.globalAlpha = 1; ctx.globalCompositeOperation = "lighter";
+              ctx.strokeStyle = "hsla(140,95%,62%," + (e * (1 - e) * 1.6).toFixed(3) + ")"; ctx.lineWidth = 1.4;
+              ctx.beginPath(); ctx.moveTo(x + w / 2, 0); ctx.lineTo(x + w / 2, s.h); ctx.stroke();
+              ctx.globalCompositeOperation = "source-over";
+            }
+          }
+          ctx.globalAlpha = 1;
+        }
+        if (!show.done && t >= hold + split + 0.3) {
+          show.done = true;
+          if (cfg.video) {
+            video.src = cfg.video; video.hidden = false; video.currentTime = 0;
+            var playing = video.play();
+            if (playing && playing.catch) playing.catch(function () { /* the browser wants a press first: the controls are there */ });
+          } else door.hidden = false;
+        }
+      };
+      show.paint = paint;
+      show.tick = ticker(function (now, dt) { show.s.t += dt; paint((now - show.t0) / 1000); });
+      root.addEventListener("resize", function () { if (!box.hidden) { show.s.size(); paint(calm ? 99 : (root.performance.now() - show.t0) / 1000); } });
+      video.addEventListener("ended", function () { door.hidden = false; });
+      door.addEventListener("click", function () { try { root.localStorage.setItem("watchmap.view", "sacred"); } catch (e) { /* the map opens in its default view */ } });
+    }
+    if (on) {
+      doc.body.classList.add("sacred-on"); box.hidden = false; door.hidden = true; video.hidden = true; show.done = false;
+      show.s.size(); show.t0 = root.performance.now();
+      var n = Math.round(Math.min(150, Math.max(60, show.s.w / 12)));
+      show.strips = [];
+      for (var i = 0; i < n; i++) {
+        var mid = 1 - Math.abs((i + 0.5) / n - 0.5) * 2; /* 0 at the edges, 1 in the middle */
+        show.strips.push({ delay: 0.5 * Math.pow(mid, 0.8) + Math.random() * 0.08, dir: (i < n / 2 ? -1 : 1) * (0.4 + Math.random() * 0.9) });
+      }
+      if (cfg.still && !show.img) {
+        var im = new root.Image();
+        im.onload = function () { show.img = im; show.t0 = root.performance.now(); if (calm) show.paint(99); };
+        im.src = cfg.still;
+      }
+      if (calm) show.paint(99); else show.tick.start();
+    } else {
+      show.tick.stop();
+      video.pause(); video.removeAttribute("src"); video.load(); video.hidden = true;
+      door.hidden = true; box.hidden = true; doc.body.classList.remove("sacred-on");
+    }
   }
 
   /* On the map page the wheel of a mouse moves the timeline sideways (it has nowhere to go up or down). */
@@ -533,10 +619,10 @@
 
     drawMap(); progress(); sky();
     if (ON_MAP) {
-      if (root.WATCHMAP && root.WATCHMAP.greenImage) doc.documentElement.style.setProperty("--green-still", 'url("' + root.WATCHMAP.greenImage + '")');
+      if (still()) doc.documentElement.style.setProperty("--green-still", 'url("' + still() + '")');
       strands(doc.documentElement.getAttribute("data-theme") === "green");
       doc.addEventListener("themechange", function (e) { strands(e.detail === "green"); });
-    }
+    } else doc.addEventListener("sacredshow", function (e) { sacredShow(!!e.detail); });
     if ("IntersectionObserver" in root && !calm) {
       var io = new root.IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }); }, { rootMargin: "0px 0px -8% 0px" });
       Array.prototype.forEach.call(doc.querySelectorAll(".reveal"), function (n) { io.observe(n); });

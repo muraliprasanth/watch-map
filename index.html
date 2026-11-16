@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="dark" data-home>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -27,7 +27,7 @@
     <a href="quiz.html" target="_blank" rel="noopener">Quiz</a>
   </nav>
   <a class="tool terms-link" href="terms.html" target="_blank" rel="noopener">Terms</a>
-  <button type="button" id="theme" class="tool" title="Switch between dark and light">Light</button>
+  <button type="button" id="theme" class="tool">Dark</button>
 </header>
 
 <main id="top">
@@ -113,7 +113,6 @@
     <div class="caption" id="caption" aria-live="polite"></div>
     <p class="legend"><span class="key need"></span> needed first <span class="key nice"></span> adds colour <span data-ticks><span class="key seen"></span> seen </span><span class="note" id="order-note"></span></p>
     <p class="map-unofficial">Unofficial fan guide. Not affiliated with Marvel or The Walt Disney Company.</p>
-    <p class="green-quote">“I know what I want. I know what kind of god I need to be… For you. For all of us.”<small>Loki, season 2</small></p>
   </section>
 
   <section id="paths" class="block">
@@ -149,6 +148,13 @@
   <p>Headline type: Anton, by The Anton Project Authors, under the SIL Open Font License 1.1 (<a href="fonts/OFL.txt">licence</a>).</p>
   <p>Also here: <a href="map.html">The map</a> · <a href="terms.html">Terms</a> · <a href="wallpapers.html">Wallpapers</a> · <a href="quiz.html">Quiz</a>.</p>
 </footer>
+
+<!-- The Sacred Timeline show (see sacredShow in app.js). Hidden until the switch in the bar starts it. -->
+<div id="sacred" hidden>
+  <canvas id="sacred-canvas" aria-hidden="true"></canvas>
+  <video id="sacred-video" playsinline controls preload="none" hidden></video>
+  <a class="cta" id="sacred-door" href="map.html" hidden>Enter the Sacred Timeline →</a>
+</div>
 
 <script src="data.js"></script>
 <script src="app.js"></script>
