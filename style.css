@@ -414,7 +414,7 @@ a.tool { text-decoration: none; }
 .stage-pill:hover { background: #f4f0e8; color: #0b0a0e; }
 .stage-pill.quiet { border-color: rgba(244, 240, 232, 0.45); color: rgba(244, 240, 232, 0.8); font-size: 0.76rem; }
 @keyframes stage-in { from { opacity: 0; } to { opacity: 1; } }
-/* "I am Iron Man": the page is wiped away from left to right (the grains are drawn on the stage), then nothing is left */
+/* "I am inevitable" (the Iron Man scene): the page is wiped away from left to right (the grains are drawn on the stage), then nothing is left */
 body.to-dust { overflow: hidden; }
 body.to-dust > .bar, body.to-dust > main, body.to-dust > .foot { -webkit-mask-image: linear-gradient(90deg, transparent 0, transparent 46%, #000 54%, #000 100%); mask-image: linear-gradient(90deg, transparent 0, transparent 46%, #000 54%, #000 100%);
   -webkit-mask-size: 220% 100%; mask-size: 220% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; animation: dust-away 2.4s ease-in forwards; }

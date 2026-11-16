@@ -1,7 +1,7 @@
 /* The Animation page: two scenes that take over the window.
    "Where is Loki in the timeline?": one green thread opens into the whole timeline (strands.js), and a button leads to
    the map's Sacred Timeline view.
-   "I am Iron Man": the page turns to dust and nothing is left; then a reactor comes together out of the dust
+   "I am inevitable" (the box; the scene answers it with "I AM IRON MAN"): the page turns to dust and nothing is left; then a reactor comes together out of the dust
    and keeps turning, with one button under it that leads back to the guide.
    The reactor is this guide's own moving scene: coils and light, in a ring that reads "Proof that Tony Stark
    has a heart" (see reactor); it is a device, and draws no character. A copy of the site may name its own in
@@ -185,7 +185,7 @@
     ctx.globalAlpha = 1;
   }
 
-  /* ---------- "I am Iron Man" ---------- */
+  /* ---------- "I am inevitable": the Iron Man scene ---------- */
   var held = null; /* a still picture left on the stage (a copy's own, or the reactor when less motion was asked for) */
   /* The page turns to dust, left to right, and nothing is left; then the picture comes together out of dust.
      The guide's own reactor then keeps turning, from the very frame the dust came together into. */
