@@ -9,8 +9,8 @@
     { id: "strongest", kind: "pick", ask: "Who is the strongest Avenger?", options: ["Thor", "Hulk", "Scarlet Witch", "Doctor Strange"], answer: "Hulk" },
     { id: "potato", kind: "pick", ask: "Who handles the big potato stuff?", options: ["Spider-Man", "The Avengers", "The Thunderbolts", "The TVA"], answer: "The Thunderbolts" },
     { id: "god", kind: "pick", ask: "Who is the god of the multiverse?", options: ["Loki", "Doom", "Thanos", "Ultron"], answer: "Loki" },
-    { id: "universe", kind: "type", ask: "I love you ____", accept: ["in every universe"], full: "I love you in every universe.",
-      hint: "Said by the one who said: “If I tell you what happens, it won’t happen.”" },
+    { id: "universe", kind: "type", ask: "I love you ____", accept: ["in every universe", "i love you in every universe"], full: "I love you in every universe.",
+      hint: "This was said by the same person who said “If I tell you what happens, it won’t happen”." },
     { id: "chris", kind: "type", ask: "Who is Deadpool’s favourite Chris?", accept: ["chris hemsworth", "hemsworth"], full: "Chris Hemsworth." },
     { id: "dead", kind: "type", ask: "In Marvel, everyone stays dead except ____", accept: ["uncle ben", "ben", "ben parker", "uncle ben parker"], full: "In Marvel, everyone stays dead except Uncle Ben." },
     { id: "power", kind: "type", ask: "With great power comes ____", accept: ["great responsibility", "responsibility"], full: "With great power comes great responsibility." }
