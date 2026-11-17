@@ -1,4 +1,4 @@
-/* The Animation page: two scenes that take over the window.
+/* The Animation page: three scenes that take over the window.
    "Where is Loki in the timeline?": one green thread opens into the whole timeline (strands.js), and a button leads to
    the map's Sacred Timeline view.
    "I am inevitable" (the box; the scene answers it with "I AM IRON MAN"): the page turns to dust and nothing is left; then a reactor comes together out of the dust
@@ -12,6 +12,9 @@
      window.WATCHMAP.sacred  = { youtube: "<video id>" }   (the Loki scene ends with that video in YouTube's own
                                player, framed from youtube-nocookie.com, and a button that opens it on YouTube;
                                the site hosts nothing)
+     window.WATCHMAP.stan    = "<picture>"   (the Stan Lee scene shows that picture, whole, in place of the drawing)
+   "A real superhero": a line by Stan Lee comes up word by word over a pair of tinted glasses, the guide's own
+   drawing of a thing, not of a person.
    Someone who asked their device for less motion gets each end state at once. */
 (function (root) {
   "use strict";
@@ -36,7 +39,24 @@
   function rnd(n) { var x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); }
   /* A YouTube video id, and nothing else: eleven letters, digits, - or _. Anything else gives "". */
   function youtubeId(v) { return typeof v === "string" && /^[A-Za-z0-9_-]{11}$/.test(v) ? v : ""; }
-  var api = { grid: grid, letGo: letGo, cover: cover, clamp: clamp, rnd: rnd, youtubeId: youtubeId };
+  /* Where a picture of iw by ih sits when all of it is shown inside a window of w by h. */
+  function fit(iw, ih, w, h) {
+    var k = Math.min(w / iw, h / ih);
+    return { x: (w - iw * k) / 2, y: (h - ih * k) / 2, w: iw * k, h: ih * k };
+  }
+  /* Words of the given widths, set in lines no wider than `max` with `space` between two words: the lines,
+     each a list of word numbers. A word wider than a line gets a line to itself. */
+  function wrap(widths, space, max) {
+    var lines = [], line = [], used = 0, i;
+    for (i = 0; i < widths.length; i++) {
+      if (line.length && used + space + widths[i] > max) { lines.push(line); line = []; used = 0; }
+      used += (line.length ? space : 0) + widths[i]; line.push(i);
+    }
+    if (line.length) lines.push(line);
+    return lines;
+  }
+  var STAN_LINE = "That person who helps others simply because it should or must be done, and because it is the right thing to do, is indeed without a doubt, a real superhero.";
+  var api = { grid: grid, letGo: letGo, cover: cover, fit: fit, wrap: wrap, clamp: clamp, rnd: rnd, youtubeId: youtubeId, STAN_LINE: STAN_LINE };
   if (typeof module !== "undefined" && module.exports) { module.exports = api; return; }
 
   var doc = root.document, S = root.WatchStrands, cfg = root.WATCHMAP || {};
@@ -48,6 +68,8 @@
   if (!st) return;
   var ctx = st.ctx, FLIGHT = 0.24;
   var scene = null; /* what is playing: { step(t), ... } */
+  var again = null; /* draws a settled scene once more, after the window changes size */
+  var plays = 0;    /* goes up each time the stage opens: a picture that arrives late knows its scene is gone */
   var t0 = 0;
   var tick = S.ticker(function (now, dt) { st.t += dt; if (scene) scene.step((now - t0) / 1000); });
   function show(names) { Object.keys(tools).forEach(function (k) { tools[k].hidden = names.indexOf(k) === -1; }); }
@@ -276,10 +298,96 @@
   }
   video.addEventListener("ended", function () { show(["door", "back", "home"]); });
 
+  /* ---------- "A real superhero": the Stan Lee scene ---------- */
+  /* One lens of a pair of aviators: flat along the brow, deepest low on its outer side. `out` is 1 when
+     the outer side is on the right and -1 when it is on the left. */
+  function lens(o, x, y, w, h, out) {
+    var a = out * w / 2, b = h / 2;
+    o.beginPath(); o.moveTo(x - a * 0.78, y - b); o.lineTo(x + a * 0.7, y - b * 0.94);
+    o.bezierCurveTo(x + a * 1.02, y - b * 0.9, x + a * 1.06, y - b * 0.2, x + a * 0.96, y + b * 0.3);
+    o.bezierCurveTo(x + a * 0.84, y + b * 0.95, x + a * 0.2, y + b * 1.08, x - a * 0.3, y + b * 0.9);
+    o.bezierCurveTo(x - a * 0.86, y + b * 0.7, x - a * 1.04, y + b * 0.1, x - a, y - b * 0.55);
+    o.bezierCurveTo(x - a * 0.99, y - b * 0.85, x - a * 0.92, y - b, x - a * 0.78, y - b);
+    o.closePath();
+  }
+  /* A pair of tinted glasses seen from a little to one side: the far lens is narrower and sits a touch
+     higher, and one arm runs back to the ear and hooks down. The drawing is about 2.8 × `s` wide, centred
+     on (cx, cy), with a band of light that crosses the lenses every few seconds. The guide's own drawing:
+     a thing, not a person. */
+  function glasses(o, cx, cy, s, t) {
+    var line = Math.max(2, s * 0.04), floor = cy + s * 0.56, g, i, L, sweep,
+      lenses = [{ x: cx - s * 1.04, y: cy - s * 0.03, w: s * 0.6, h: s * 0.56, out: -1 }, { x: cx - s * 0.18, y: cy, w: s * 0.84, h: s * 0.68, out: 1 }];
+    o.lineJoin = "round"; o.lineCap = "round";
+    g = o.createRadialGradient(cx, floor, 0, cx, floor, s * 1.5); /* the light it rests in */
+    g.addColorStop(0, "rgba(123,79,214,0.38)"); g.addColorStop(1, "rgba(123,79,214,0)");
+    o.save(); o.translate(0, floor); o.scale(1, 0.14); o.translate(0, -floor); o.fillStyle = g; o.fillRect(cx - s * 1.6, floor - s * 1.6, s * 3.2, s * 3.2); o.restore();
+    o.strokeStyle = "#f4f0e8"; o.lineWidth = line * 1.2; /* the arm: back from the hinge, then down behind the ear */
+    o.beginPath(); o.moveTo(cx + s * 0.2, cy - s * 0.27);
+    o.bezierCurveTo(cx + s * 0.7, cy - s * 0.3, cx + s * 1.08, cy - s * 0.24, cx + s * 1.24, cy - s * 0.11);
+    o.bezierCurveTo(cx + s * 1.35, cy - s * 0.02, cx + s * 1.41, cy + s * 0.14, cx + s * 1.43, cy + s * 0.3); o.stroke();
+    o.lineWidth = line;
+    for (i = 0; i < lenses.length; i++) {
+      L = lenses[i];
+      g = o.createLinearGradient(L.x - L.w / 2, L.y - L.h / 2, L.x + L.w / 2, L.y + L.h / 2); g.addColorStop(0, "rgba(246,196,83,0.62)"); g.addColorStop(1, "rgba(229,56,59,0.42)");
+      lens(o, L.x, L.y, L.w, L.h, L.out); o.fillStyle = "#0b0a0e"; o.fill(); o.fillStyle = g; o.fill();
+      o.save(); lens(o, L.x, L.y, L.w, L.h, L.out); o.clip();
+      sweep = L.x - L.w / 2 + (((t * 0.16 + i * 0.07) % 1) * 3.2 - 0.8) * L.w;
+      o.fillStyle = "rgba(255,255,255,0.2)";
+      o.beginPath(); o.moveTo(sweep, L.y - L.h / 2); o.lineTo(sweep + L.w * 0.2, L.y - L.h / 2); o.lineTo(sweep - L.w * 0.12, L.y + L.h / 2); o.lineTo(sweep - L.w * 0.32, L.y + L.h / 2); o.closePath(); o.fill();
+      o.restore();
+      lens(o, L.x, L.y, L.w, L.h, L.out); o.stroke();
+    }
+    o.beginPath(); o.moveTo(cx - s * 0.8, cy - s * 0.3); o.lineTo(cx - s * 0.52, cy - s * 0.335); /* the two bars of the bridge */
+    o.moveTo(cx - s * 0.75, cy - s * 0.15); o.lineTo(cx - s * 0.6, cy - s * 0.16); o.stroke();
+  }
+  /* The line comes up word by word, his name after it, and the glasses rise into place under them. A copy
+     that names its own picture shows that picture instead, whole, coming up out of the dark. */
+  function playStan() {
+    var mine, img = null, settled = false, words = STAN_LINE.toUpperCase().split(" "), START = 1.1, EACH = 0.17, END = START + words.length * EACH + 0.4;
+    open(); mine = plays; doc.body.classList.add("stage-full"); show(["back"]);
+    var play = { step: function (t) {
+      var w = st.w, h = st.h, u = Math.min(w, h), f, fs, space, widths, lines, lh, top, y, x, i, k, a, right = 0, room, s;
+      ctx.globalAlpha = 1; ctx.globalCompositeOperation = "source-over"; ctx.shadowBlur = 0;
+      ctx.fillStyle = "#000"; ctx.fillRect(0, 0, w, h);
+      if (img) {
+        f = fit(img.width, img.height, w, h);
+        ctx.globalAlpha = clamp(t / 1.8); ctx.drawImage(img, f.x, f.y, f.w, f.h); ctx.globalAlpha = 1;
+        if (t >= 1.8 && !settled) { settled = true; show(["back", "home"]); tick.stop(); scene = null; }
+        return;
+      }
+      fs = Math.max(17, Math.min(46, u * 0.052));
+      ctx.font = "400 " + Math.round(fs) + "px Anton, Impact, sans-serif"; ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
+      space = fs * 0.3; widths = words.map(function (word) { return ctx.measureText(word).width; });
+      lines = wrap(widths, space, Math.min(w * 0.86, fs * 24)); lh = fs * 1.42; top = Math.max(fs * 2, h * 0.12);
+      for (i = 0; i < lines.length; i++) {
+        x = (w - lines[i].reduce(function (sum, n) { return sum + widths[n]; }, 0) - space * (lines[i].length - 1)) / 2; y = top + lh * i + fs;
+        for (k = 0; k < lines[i].length; k++) {
+          a = clamp((t - START - lines[i][k] * EACH) / 0.35);
+          ctx.globalAlpha = a; ctx.fillStyle = lines[i][k] === words.length - 1 ? "#f6c453" : "#f4f0e8";
+          ctx.fillText(words[lines[i][k]], x, y - (1 - a) * fs * 0.25);
+          x += widths[lines[i][k]] + space;
+        }
+        right = Math.max(right, x - space);
+      }
+      y = top + lh * lines.length + fs * 1.1;
+      ctx.globalAlpha = clamp((t - END) / 0.9) * 0.85; ctx.fillStyle = "#f4f0e8"; ctx.textAlign = "right";
+      ctx.font = "400 " + Math.round(fs * 0.82) + "px Anton, Impact, sans-serif"; ctx.fillText("\u2014 STAN LEE", right, y);
+      room = h * 0.86 - y; s = Math.max(34, Math.min(u * 0.2, w * 0.3, room * 0.62)); a = clamp(t / 1.3); a = a * a * (3 - 2 * a);
+      ctx.globalAlpha = a; glasses(ctx, w / 2, y + room * 0.56 + (1 - a) * s * 0.5, s, t); ctx.globalAlpha = 1;
+      if (t >= END + 1.1 && !settled) { settled = true; show(["back", "home"]); }
+    } };
+    again = function () { if (calm || (img && settled)) play.step(99); };
+    if (!cfg.stan) { begin(play); return; }
+    var im = new root.Image();
+    im.onload = function () { if (stage.hidden || plays !== mine) return; img = im; begin(play); };
+    im.onerror = function () { if (stage.hidden || plays !== mine) return; begin(play); }; /* no picture: the drawing */
+    im.src = cfg.stan;
+  }
+
   /* ---------- the stage ---------- */
-  function open() { stage.hidden = false; st.size(); ctx.clearRect(0, 0, st.w, st.h); held = null; }
+  function open() { plays += 1; stage.hidden = false; st.size(); ctx.clearRect(0, 0, st.w, st.h); held = null; again = null; }
   function close() {
-    tick.stop(); scene = null; held = null;
+    tick.stop(); scene = null; held = null; again = null;
     video.pause(); video.removeAttribute("src"); video.load(); video.hidden = true;
     frame.removeAttribute("src"); frame.hidden = true; stage.classList.remove("has-frame");
     show([]); stage.hidden = true;
@@ -287,11 +395,13 @@
   }
   $("play-loki").addEventListener("click", playLoki);
   $("play-iron").addEventListener("click", playIron);
+  $("play-stan").addEventListener("click", playStan);
   tools.back.addEventListener("click", close);
   doc.addEventListener("keydown", function (e) { if (e.key === "Escape" && !stage.hidden) close(); });
   root.addEventListener("resize", function () {
     if (stage.hidden) return;
     st.size();
     if (held) picture(function (pic) { if (!held) return; held = pic; ctx.clearRect(0, 0, st.w, st.h); ctx.drawImage(pic, 0, 0); }); /* a still picture: draw it again at the new size */
+    if (again) again();
   });
 })(typeof window !== "undefined" ? window : globalThis);

@@ -406,6 +406,7 @@ a.tool { text-decoration: none; }
 .anim-box span { font-family: var(--display); font-size: clamp(1.7rem, 5vw, 2.5rem); letter-spacing: 0.03em; text-transform: uppercase; line-height: 1.1; text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.55); }
 .anim-box.loki { background: radial-gradient(circle at 50% 55%, #1b8f55, #06301c 70%); }
 .anim-box.iron { background: radial-gradient(circle at 50% 42%, #ff6a3d, #7a1016 68%); }
+.anim-box.stan { background: radial-gradient(circle at 50% 46%, #7b4fd6, #1c1140 70%); }
 #stage { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; }
 #stage[hidden], #stage [hidden] { display: none; }
 #stage-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
