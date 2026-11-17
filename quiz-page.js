@@ -7,7 +7,7 @@
      `full` is shown once the answer is right. */
   var QUESTIONS = [
     { id: "strongest", kind: "pick", ask: "Who is the strongest Avenger?", options: ["Thor", "Hulk", "Scarlet Witch", "Doctor Strange"], answer: "Hulk" },
-    { id: "potato", kind: "pick", ask: "Who handles the big potato stuff?", options: ["Spider-Man", "The Avengers", "The Thunderbolts", "The TVA"], answer: "The Thunderbolts" },
+    { id: "potato", kind: "pick", ask: "Who handles the big potato stuff?", options: ["Spider-Man", "The Avengers", "Thunderbolts*", "The TVA"], answer: "Thunderbolts*" },
     { id: "god", kind: "pick", ask: "Who is the god of the multiverse?", options: ["Loki", "Doom", "Thanos", "Ultron"], answer: "Loki" },
     { id: "universe", kind: "type", ask: "I love you ____", accept: ["in every universe", "i love you in every universe"], full: "I love you in every universe.",
       hint: "This was said by the same person who said “If I tell you what happens, it won’t happen”." },
