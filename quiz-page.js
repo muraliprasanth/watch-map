@@ -4,11 +4,13 @@
   "use strict";
   var OLD_KEY = "watchmap.quiz"; /* the first version kept answers here; anything left is removed */
   /* kind "pick": choose one of `options`. kind "type": write the missing words; `accept` lists what counts.
-     `full` is shown once the answer is right. */
+     `full` is shown once the answer is right. `hint`, on either kind, sits behind a "Show a hint" button. */
   var QUESTIONS = [
-    { id: "strongest", kind: "pick", ask: "Who is the strongest Avenger?", options: ["Thor", "Hulk", "Scarlet Witch", "Doctor Strange"], answer: "Hulk" },
+    { id: "strongest", kind: "pick", ask: "Who is the strongest Avenger?", options: ["Thor", "Hulk", "Scarlet Witch", "Doctor Strange"], answer: "Hulk",
+      hint: "You should have watched Thor: Ragnarok." },
     { id: "potato", kind: "pick", ask: "Who handles the big potato stuff?", options: ["Spider-Man", "The Avengers", "Thunderbolts*", "The TVA"], answer: "Thunderbolts*" },
     { id: "god", kind: "pick", ask: "Who is the god of the multiverse?", options: ["Loki", "Doom", "Thanos", "Ultron"], answer: "Loki" },
+    { id: "hammer", kind: "pick", ask: "What is the name of Thor’s hammer?", options: ["Jonathan", "Stormbreaker", "Mjolnir", "Gungnir"], answer: "Mjolnir" },
     { id: "universe", kind: "type", ask: "I love you ____", accept: ["in every universe", "i love you in every universe"], full: "I love you in every universe.",
       hint: "This was said by the same person who said “If I tell you what happens, it won’t happen”." },
     { id: "chris", kind: "type", ask: "Who is Deadpool’s favourite Chris?", accept: ["chris hemsworth", "hemsworth"], full: "Chris Hemsworth." },
@@ -75,13 +77,13 @@
       form.appendChild(input); form.appendChild(go);
       form.addEventListener("submit", function (e) { e.preventDefault(); answers[q.id] = input.value; settle(); });
       box.appendChild(form);
-      if (q.hint) {
-        var ask = el("button", "ghost-link", "Show a hint"), hint = el("p", "q-hint", "Hint: " + q.hint);
-        ask.type = "button"; hint.hidden = true;
-        ask.addEventListener("click", function () { hint.hidden = !hint.hidden; ask.textContent = hint.hidden ? "Show a hint" : "Hide the hint"; });
-        var wrap = el("p", "q-hint"); wrap.appendChild(ask);
-        box.appendChild(wrap); box.appendChild(hint);
-      }
+    }
+    if (q.hint) {
+      var ask = el("button", "ghost-link", "Show a hint"), hint = el("p", "q-hint", "Hint: " + q.hint);
+      ask.type = "button"; hint.hidden = true;
+      ask.addEventListener("click", function () { hint.hidden = !hint.hidden; ask.textContent = hint.hidden ? "Show a hint" : "Hide the hint"; });
+      var wrap = el("p", "q-hint"); wrap.appendChild(ask);
+      box.appendChild(wrap); box.appendChild(hint);
     }
     box.appendChild(say);
     if (q.full) { var full = el("p", "q-full", q.full); full.hidden = true; box.appendChild(full); }
