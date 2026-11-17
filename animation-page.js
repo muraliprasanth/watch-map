@@ -233,7 +233,7 @@
         p = (t - OUT - GAP) / IN * 1.05;
         if (p < 1.05) { drawDust(inn, p); return; }
         ctx.clearRect(0, 0, st.w, st.h); ctx.drawImage(pic, 0, 0);
-        show(["home"]);
+        show(["back", "home"]);
         if (!mine || calm) { held = pic; tick.stop(); scene = null; return; }
         t0 = root.performance.now();
         scene = { step: function (now) { reactor(ctx, st.w, st.h, now); } };
